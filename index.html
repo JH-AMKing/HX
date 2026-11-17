@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>权限申请速查手册 · 按角色查看可申请权限</title>
+<style>
+:root{
+  --bg:#f4f6fa; --surface:#ffffff; --surface-2:#fafbfd; --line:#e3e8f0;
+  --text:#1b2434; --text-2:#5b6679; --text-3:#8b95a7;
+  --brand:#2f5bd7; --brand-soft:#eaf0ff; --brand-deep:#1e3f9e;
+  --ok:#0b8a5b; --ok-soft:#e6f6ef; --no:#a7afbd; --no-soft:#f1f3f6;
+  --warn:#b26a00; --warn-soft:#fff4e0;
+  --radius:12px; --shadow:0 1px 2px rgba(20,35,70,.04),0 6px 20px rgba(20,35,70,.05);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",Segoe UI,sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--brand);text-decoration:none}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:20px;padding:12px 26px}
+.brandbox{display:flex;align-items:center;gap:12px;min-width:270px}
+.mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#2f5bd7,#5b86f0);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:17px;box-shadow:0 4px 12px rgba(47,91,215,.25)}
+.brandbox h1{font-size:16px;margin:0;font-weight:700;letter-spacing:.2px}
+.brandbox p{margin:0;font-size:11.5px;color:var(--text-3)}
+.searchwrap{flex:1;max-width:560px;position:relative}
+.searchwrap input{width:100%;height:38px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);padding:0 36px 0 36px;font-size:13.5px;color:var(--text);outline:none;transition:.18s}
+.searchwrap input:focus{border-color:var(--brand);background:#fff;box-shadow:0 0 0 3px var(--brand-soft)}
+.searchwrap .icon{position:absolute;left:12px;top:9px;color:var(--text-3);font-size:15px}
+.searchwrap .clear{position:absolute;right:10px;top:7px;border:0;background:transparent;color:var(--text-3);cursor:pointer;font-size:17px;display:none;line-height:1;padding:4px}
+.actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.btn{border:1px solid var(--line);background:#fff;color:var(--text-2);border-radius:8px;padding:7px 12px;font-size:12.5px;cursor:pointer;white-space:nowrap;transition:.15s;font-family:inherit}
+.btn:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:var(--brand-deep);color:#fff}
+.toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-2);cursor:pointer;user-select:none;white-space:nowrap}
+.toggle input{accent-color:var(--brand);cursor:pointer}
+.app{display:flex;align-items:flex-start;gap:0;max-width:1680px;margin:0 auto}
+.sidebar{position:sticky;top:61px;height:calc(100vh - 61px);overflow-y:auto;width:248px;flex:0 0 248px;background:var(--surface);border-right:1px solid var(--line);padding:18px 12px 40px}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:#d8dfe9;border-radius:3px}
+.sidenav{border:0;background:transparent;width:100%;text-align:left;padding:9px 12px;border-radius:8px;font-size:13.5px;color:var(--text);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:9px;transition:.15s}
+.sidenav:hover{background:var(--surface-2)}
+.sidenav.active{background:var(--brand-soft);color:var(--brand-deep);font-weight:600}
+.sidegroup{margin:18px 12px 7px;font-size:11px;font-weight:700;letter-spacing:1.2px;color:var(--text-3);text-transform:uppercase}
+.sideitem{display:flex;align-items:center;gap:6px;width:100%;border:0;background:transparent;text-align:left;padding:7px 12px;border-radius:8px;font-size:13px;color:var(--text-2);cursor:pointer;font-family:inherit;transition:.15s}
+.sideitem:hover{background:var(--surface-2);color:var(--text)}
+.sideitem.active{background:var(--brand-soft);color:var(--brand-deep);font-weight:600}
+.sideitem .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.badge{background:#eef1f6;color:var(--text-2);border-radius:20px;padding:1px 7px;font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+.sideitem.active .badge{background:#fff;color:var(--brand)}
+.dot{width:6px;height:6px;border-radius:50%;flex:0 0 6px}
+.content{flex:1;min-width:0;padding:26px 30px 70px}
+.crumb{font-size:12px;color:var(--text-3);margin-bottom:14px}
+.crumb b{color:var(--text-2);font-weight:600}
+.pagehead{margin-bottom:22px}
+.pagehead h2{font-size:25px;margin:0 0 7px;font-weight:700;letter-spacing:-.3px}
+.pagehead .sub{color:var(--text-2);font-size:13.5px;margin:0}
+.hero{background:linear-gradient(120deg,#1e3f9e,#2f5bd7 55%,#5b86f0);color:#fff;border-radius:16px;padding:28px 32px;margin-bottom:22px;box-shadow:0 8px 28px rgba(30,63,158,.18);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-70px;top:-90px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero:before{content:"";position:absolute;right:60px;bottom:-130px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.05)}
+.hero h2{font-size:24px;margin:0 0 8px;font-weight:700}
+.hero p{margin:0;opacity:.88;font-size:13.5px;max-width:760px;line-height:1.75;position:relative;z-index:1}
+.hero .meta{margin-top:16px;font-size:12px;opacity:.75;position:relative;z-index:1}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.stat .v{font-size:26px;font-weight:700;color:var(--brand-deep);font-variant-numeric:tabular-nums;line-height:1.2}
+.stat .k{font-size:12px;color:var(--text-2);margin-top:5px}
+.stat .h{font-size:11px;color:var(--text-3);margin-top:3px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;margin-bottom:20px}
+.panel h3{font-size:15px;margin:0 0 12px;font-weight:700;display:flex;align-items:center;gap:8px}
+.panel h3:before{content:"";width:3px;height:15px;background:var(--brand);border-radius:2px}
+.panel .lead{font-size:13px;color:var(--text-2);margin:0 0 14px}
+.notice{display:flex;gap:10px;background:var(--warn-soft);border:1px solid #f3dfb9;color:#7a4d05;border-radius:9px;padding:11px 14px;font-size:12.5px;line-height:1.7;margin-bottom:18px}
+.notice b{color:#8a5300}
+.legend{display:flex;flex-wrap:wrap;gap:18px;font-size:12.5px;color:var(--text-2);align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:2px 9px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.no{background:var(--no-soft);color:var(--text-3)}
+.pill.grp{background:var(--brand-soft);color:var(--brand-deep)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.rolecards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.rolecard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;cursor:pointer;transition:.18s;box-shadow:var(--shadow)}
+.rolecard:hover{transform:translateY(-2px);border-color:var(--brand);box-shadow:0 8px 24px rgba(47,91,215,.13)}
+.rolecard .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.rolecard .nm{font-size:15px;font-weight:700}
+.rolecard .n{font-size:24px;font-weight:700;color:var(--brand-deep);font-variant-numeric:tabular-nums;margin-top:10px;line-height:1}
+.rolecard .n small{font-size:11px;color:var(--text-3);font-weight:500;margin-left:4px}
+.rolecard .bars{margin-top:12px;display:flex;flex-direction:column;gap:3px}
+.rolecard .bar{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-3)}
+.rolecard .bar .t{width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 0 88px}
+.rolecard .bar .track{flex:1;height:5px;background:#eef1f6;border-radius:3px;overflow:hidden}
+.rolecard .bar .fill{height:100%;background:linear-gradient(90deg,#2f5bd7,#6b93f5);border-radius:3px}
+.rolecard .bar .c{width:24px;text-align:right;font-variant-numeric:tabular-nums}
+.sec-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:26px 0 12px}
+.sec-head h3{font-size:16px;margin:0;font-weight:700;display:flex;align-items:center;gap:9px}
+.sec-head .count{font-size:12px;color:var(--text-3);font-weight:400}
+.sysblock{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
+.syshead{padding:14px 18px;background:var(--surface-2);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.syshead .t{font-size:15px;font-weight:700}
+.syshead .spacer{flex:1}
+.group{margin:0 14px 14px;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.group:first-of-type{margin-top:14px}
+.group>summary{cursor:pointer;padding:9px 14px;background:#fbfcfe;font-size:12.5px;font-weight:600;color:var(--text-2);list-style:none;display:flex;align-items:center;gap:8px;border-bottom:1px solid transparent}
+.group[open]>summary{border-bottom-color:var(--line)}
+.group>summary::-webkit-details-marker{display:none}
+.group>summary:before{content:"▸";color:var(--text-3);font-size:12px;transition:.15s}
+.group[open]>summary:before{transform:rotate(90deg)}
+.group>summary .gn{flex:1}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:#fff;color:var(--text-3);font-weight:600;text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);font-size:11.5px;letter-spacing:.3px;white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid #f0f2f6;vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#fafbfe}
+.pname{font-weight:600;color:var(--text)}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;color:var(--brand-deep);background:var(--brand-soft);padding:2px 6px;border-radius:5px;word-break:break-all;display:inline-block}
+.num{color:var(--text-3);font-variant-numeric:tabular-nums;font-size:11.5px}
+.permtable{table-layout:fixed}
+.permtable td.num,.permtable th:nth-child(3){text-align:right}
+.note{color:var(--warn);font-size:11.5px}
+.muted{color:var(--text-3)}
+.matrix-scroll{overflow-x:auto}
+.matrix{width:max-content;min-width:100%}
+.matrix td:nth-child(1){min-width:180px}
+.matrix td:nth-child(3){min-width:118px}
+.matrix td:nth-child(4){min-width:258px}
+.matrix th.rolecol,.matrix td.rolecol{text-align:center;min-width:74px;padding:8px 6px}
+.matrix .yes{color:var(--ok);font-weight:700}
+.matrix .no{color:#c3cad6}
+.matrix .grpcap{font-size:10.5px;color:var(--text-3);font-weight:500}
+.viewbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-6px 0 16px}
+.viewbar .tip{font-size:11.5px;color:var(--text-3)}
+.viewswitch{display:inline-flex;border:1px solid var(--line);border-radius:8px;background:#fff;overflow:hidden;margin-left:auto}
+.viewswitch button{border:0;background:transparent;padding:6px 12px;font-size:12px;color:var(--text-2);cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}
+.viewswitch button:hover{background:var(--surface-2)}
+.viewswitch button.on{background:var(--brand-soft);color:var(--brand-deep);font-weight:600}
+.btn.tiny{padding:5px 9px;font-size:11.5px;margin-left:6px}
+.tree{padding:10px 16px 14px}
+.tnode>.trow{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:7px;cursor:pointer;user-select:none}
+.tnode>.trow:hover{background:#f6f9fe}
+.ttog{width:12px;flex:0 0 12px;font-size:10px;color:#8b95a7;transition:transform .15s;display:inline-flex;justify-content:center}
+.tnode.collapsed>.trow .ttog{transform:rotate(-90deg)}
+.tnode.collapsed>.tchildren{display:none}
+.tchildren{margin-left:6px;padding-left:15px;border-left:1px solid #e6ecf4}
+.tname{font-size:13px;font-weight:600;color:var(--text)}
+.tcount{font-size:10.5px;color:var(--text-3);background:#eef1f6;border-radius:9px;padding:0 6px;font-variant-numeric:tabular-nums}
+.tleaf{display:flex;align-items:center;gap:9px;padding:4px 8px 4px 26px;border-radius:6px}
+.tleaf:hover{background:#f6f9fe}
+.ldot{width:5px;height:5px;border-radius:50%;background:#c3cad6;flex:0 0 5px}
+.tleaf .ln{flex:0 1 auto;max-width:42%;min-width:0;font-size:12.5px;color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tleaf .lc{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.5px;color:var(--brand-deep);background:var(--brand-soft);border:1px solid transparent;border-radius:5px;padding:1px 6px;cursor:copy;max-width:46%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:0 1 auto}
+.tleaf .lc:hover{border-color:#b9c9f0;background:#e2ebff}
+.tleaf .lc.none{color:var(--text-3);background:#f5f7fa;cursor:default;font-family:inherit}
+.tleaf .li{font-size:10.5px;color:var(--text-3);min-width:44px;text-align:left;font-variant-numeric:tabular-nums;flex:0 0 auto}
+.tleaf.denied .ln{color:var(--text-3)}
+.tleaf .pc-note{font-style:normal;font-size:10.5px;color:var(--warn);background:var(--warn-soft);border-radius:4px;padding:0 5px}
+.mmbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.mmbar .tip{font-size:11.5px;color:var(--text-3)}
+.mmtoc{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 16px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.mmtoc-lb{font-size:11.5px;color:var(--text-3);margin-right:2px}
+.mmchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:20px;padding:4px 11px;font-size:12px;color:var(--text-2);cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}
+.mmchip b{width:15px;height:15px;border-radius:50%;background:var(--brand-soft);color:var(--brand-deep);font-size:10px;display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+.mmchip span{color:var(--text-3);font-size:10.5px;font-variant-numeric:tabular-nums}
+.mmchip:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
+.mmsys{margin:0 0 22px;scroll-margin-top:80px}
+.mmsyshead{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 8px;padding:0 2px}
+.mmsyshead .t{font-size:14.5px;font-weight:700;color:var(--text)}
+.mmsyshead .split-note{font-size:11.5px;color:var(--text-3)}
+.mmsyshead .spacer{flex:1;min-width:8px}
+.mmidx{width:21px;height:21px;border-radius:6px;background:var(--brand-soft);color:var(--brand-deep);font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex:0 0 21px;font-variant-numeric:tabular-nums}
+.mmcanvas{position:relative;overflow:auto;height:660px;border:1px solid var(--line);border-radius:12px;background:#fcfdff;background-image:radial-gradient(#e9eef7 1px,transparent 1px);background-size:18px 18px;cursor:grab;box-shadow:var(--shadow)}
+.mmcanvas.dragging{cursor:grabbing;user-select:none}
+.mmcanvas::-webkit-scrollbar{width:9px;height:9px}
+.mmcanvas::-webkit-scrollbar-thumb{background:#d5dce8;border-radius:5px}
+.mmpan{position:relative}
+.mmpan svg{display:block;transform-origin:0 0}
+.mmnode{cursor:pointer}
+.mmnode rect{transition:fill .14s,stroke-width .14s}
+.mmnode:hover rect{fill:#fff;stroke-width:2.2}
+.mmleaf{cursor:copy}
+.mmleaf:hover text{fill:var(--brand);font-weight:600}
+.mmleaf:hover circle{opacity:1;r:3.4}
+.mmzoom{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:2px;margin-left:auto}
+.mmzoom button{border:0;background:transparent;min-width:26px;height:24px;border-radius:6px;cursor:pointer;color:var(--text-2);font-size:12.5px;font-family:inherit;padding:0 6px}
+.mmzoom button:hover{background:var(--surface-2);color:var(--brand)}
+.mmzoom .lv{font-size:11px;color:var(--text-3);min-width:40px;text-align:center;font-variant-numeric:tabular-nums}
+.cardgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(292px,1fr));gap:10px;padding:12px 14px}
+.permcard{border:1px solid var(--line);border-radius:10px;background:#fff;padding:12px 13px;transition:.16s;display:flex;flex-direction:column;gap:8px}
+.permcard:hover{border-color:#b9c9f0;box-shadow:0 8px 20px rgba(47,91,215,.10);transform:translateY(-1px)}
+.permcard.denied{background:#fbfcfd;border-style:dashed;opacity:.78}
+.permcard .pc-top{display:flex;align-items:flex-start;gap:8px}
+.permcard .pc-name{font-size:13.5px;font-weight:600;line-height:1.45;flex:1;color:var(--text)}
+.permcard .pc-id{font-size:10.5px;color:var(--text-3);background:#f2f5fa;border-radius:5px;padding:1px 6px;font-variant-numeric:tabular-nums;white-space:nowrap;flex:0 0 auto}
+.permcard .pc-code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:var(--brand-deep);background:var(--brand-soft);border:1px solid transparent;border-radius:6px;padding:5px 8px;word-break:break-all;line-height:1.5;cursor:copy;transition:.15s;display:block;width:100%;text-align:left}
+.permcard .pc-code:hover{border-color:#b9c9f0;background:#e2ebff}
+.permcard .pc-code.empty-code{color:var(--text-3);background:#f5f7fa;cursor:default;font-family:inherit}
+.permcard .pc-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--text-3);margin-top:auto}
+.permcard .pc-note{color:var(--warn);background:var(--warn-soft);border-radius:5px;padding:1px 6px}
+.permcard .pc-flag{color:var(--text-3);background:var(--no-soft);border-radius:5px;padding:1px 6px}
+.permcard .pc-cat{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.toast{position:fixed;left:50%;bottom:34px;transform:translate(-50%,16px);background:#1b2434;color:#fff;font-size:12.5px;padding:9px 16px;border-radius:8px;opacity:0;pointer-events:none;transition:.22s;z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:80vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.empty{padding:34px 18px;text-align:center;color:var(--text-3);font-size:13px}
+.hl{background:#fff2a8;border-radius:2px;padding:0 1px}
+.resultitem{border-bottom:1px solid var(--line);padding:11px 2px}
+.resultitem:last-child{border:0}
+.resultitem .r1{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.resultitem .r2{font-size:11.5px;color:var(--text-3);margin-top:4px}
+.tagline{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.tagline .pill{font-size:10.5px}
+.foot{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-size:11.5px;color:var(--text-3);line-height:1.8}
+@media(max-width:1000px){.topbar{flex-wrap:wrap;gap:10px;padding:10px 14px}.brandbox{min-width:100%}.searchwrap{max-width:none;order:3;flex-basis:100%}.actions{margin-left:0}.sidebar{display:none}.content{padding:18px 14px 50px}.hero{padding:22px}}
+@media print{
+  .topbar,.sidebar,.actions,.toggle-wrap,.sec-head .btn{display:none!important}
+  body{background:#fff;font-size:11px}
+  .content{padding:0;max-width:none}
+  .hero{box-shadow:none;background:#fff;color:var(--text);border:1px solid var(--line);padding:14px 18px}
+  .hero h2{color:var(--text)}.hero p,.hero .meta{color:var(--text-2);opacity:1}
+  .hero:after,.hero:before{display:none}
+  .panel,.sysblock,.rolecard{box-shadow:none;break-inside:avoid}
+  .group{break-inside:avoid}
+  .cardgrid{grid-template-columns:1fr 1fr;gap:6px;padding:8px}
+  .permcard{break-inside:avoid;box-shadow:none;transform:none;padding:8px 10px}
+  .mmcanvas{height:auto!important;overflow:visible!important;border:0;box-shadow:none;background:#fff}
+  .mmpan{width:auto!important;height:auto!important;margin:0!important}
+  .mmpan svg{transform:none!important}
+  .mmbar .btn,.mmzoom,.mmtoc{display:none!important}
+  .mmsys{break-inside:avoid;page-break-inside:avoid;margin-bottom:14px}
+  .mmsyshead .btn,.mmsyshead .mmzoom{display:none!important}
+  .viewswitch,.viewbar .tip{display:none!important}
+  details.group>summary{display:none}
+  details.group:not([open])>div{display:block!important}
+  .tnode.collapsed>.tchildren{display:block!important}
+  .tree{padding:6px 10px}
+  .tleaf{padding:2px 6px 2px 22px}
+  .syshead{background:#f4f6fa}
+  a{color:var(--text)}
+  @page{size:A4;margin:14mm}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brandbox">
+    <div class="mark">权</div>
+    <div><h1>权限申请速查手册</h1><p>按角色查看可申请权限 · 源自 权限映射表.xlsx</p></div>
+  </div>
+  <div class="searchwrap">
+    <span class="icon">⌕</span>
+    <input id="q" type="search" placeholder="搜索权限名称 / 权限标识 / 编号 / 业务分类…" autocomplete="off">
+    <button class="clear" id="clearq" title="清除">×</button>
+  </div>
+  <div class="actions">
+    <label class="toggle toggle-wrap"><input type="checkbox" id="showNo"> 同时显示不可申请项</label>
+    <button class="btn" id="fullBtn">完整清单</button>
+    <button class="btn primary" id="printBtn">打印 / 存为 PDF</button>
+  </div>
+</div>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="content" id="content"></main>
+</div>
+<div class="toast" id="toast"></div>
+<script id="payload" type="application/json">{"generated":"2026-11-13","source":"权限映射表.xlsx","systems":[{"name":"运营后台（LION）","roles":[{"name":"COC管理员","group":"管理层"},{"name":"运营管理员","group":"运营"},{"name":"产品运营","group":"运营"},{"name":"用户运营","group":"运营"},{"name":"数据运营","group":"运营"},{"name":"产品管理员","group":"产品"},{"name":"产品经理","group":"产品"},{"name":"技术管理员","group":"技术"},{"name":"病案管理员","group":"病案"},{"name":"个案管理员","group":"个案"}],"items":[{"cat":"患者管理 › 用户管理","id":"734","name":"设为测试/取消测试","code":"lion:user:member:set:test","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"患者管理 › 用户管理","id":"735","name":"启用停用账号","code":"lion:user:member:set:able","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"患者管理 › 用户管理","id":"736","name":"查看用户详情","code":"lion:user:member:list:detail","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"√","个案管理员":"√"}},{"cat":"患者管理 › 用户管理","id":"743","name":"修改患者绑定手机号","code":"lion:user:member:set:phone","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"患者管理 › 用户管理","id":"1291","name":"查看患者手机号","code":"lion:user:member:list:detail:sensitive:phone","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"患者管理 › 用户管理 › 患者详情查看","id":"251","name":"患者基本信息编辑","code":"patient:mr:info:edit","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"患者管理 › 用户管理 › 患者详情查看","id":"254","name":"患者反馈","code":"patient:feedback","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"√","个案管理员":"√"}},{"cat":"患者管理 › 用户管理 › 患者详情查看","id":"255","name":"患者备注","code":"patient:remark","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"患者管理 › 用户管理 › 患者详情查看 › 临时密码管理","id":"660","name":"创建临时密码","code":"damo:inside:auth:patient:add","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"患者管理 › 用户管理 › 患者详情查看 › 临时密码管理","id":"661","name":"查看临时密码列表","code":"damo:inside:auth:patient:read","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"患者管理 › 用户管理 › 患者详情查看 › 临时密码管理","id":"662","name":"作废临时密码","code":"damo:inside:auth:patient:deprecated","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"患者管理 › 用户管理 › 患者详情查看 › 临时密码管理","id":"663","name":"复制临时密码","code":"damo:inside:auth:patient:copy","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"患者管理 › 用户管理 › 患者详情查看 › 临时密码管理","id":"664","name":"查询临时密码日志","code":"damo:inside:patient:operation:log","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法","id":"891","name":"查看科室列表","code":"lion:digital:department:list:read","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"√"}},{"cat":"科室管理 › 数字疗法","id":"892","name":"新建科室","code":"lion:digital:add:department","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法","id":"899","name":"编辑科室信息","code":"lion:digital:modify:department","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法","id":"893","name":"查看科室详情","code":"lion:digital:department:detail","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"√"}},{"cat":"科室管理 › 数字疗法","id":"894","name":"启用停用科室","code":"lion:digital:department:inuse","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法","id":"895","name":"设为测试/取消测试","code":"lion:digital:department:setTest","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法","id":"896","name":"删除科室","code":"lion:digital:department:delete","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法","id":"904","name":"查看操作记录","code":"lion:digital:department:log","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法","id":"905","name":"科室运营配置","code":"lion:digital:department:sass","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 治疗组管理","id":"911","name":"查看治疗组列表","code":"lion:digital:department:treatGroup:list","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"√"}},{"cat":"科室管理 › 数字疗法 › 治疗组管理","id":"912","name":"新建治疗组","code":"lion:digital:department:addTreatGroup","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 治疗组管理","id":"913","name":"查看治疗组详情","code":"lion:digital:department:treatGroupDetail","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"√"}},{"cat":"科室管理 › 数字疗法 › 治疗组管理","id":"914","name":"启用/停用治疗组","code":"lion:digital:treatGroup:inuse","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 治疗组管理","id":"915","name":"编辑治疗组信息","code":"lion:digital:department:updateTreatGroup","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 治疗组管理","id":"917","name":"治疗组运营配置","code":"lion:digital:treatGroup:sass","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 治疗组管理","id":"926","name":"删除治疗组","code":"lion:digital:department:deleteTreatGroup","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 治疗组管理","id":"1290","name":"下载治疗组二维码","code":"lion:digital:department:treatGroupDetail:qrcode","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 科室管理员","id":"907","name":"查看科室管理员列表","code":"lion:digital:department:managers:list","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"√"}},{"cat":"科室管理 › 数字疗法 › 科室管理员","id":"908","name":"添加科室管理员","code":"lion:digital:department:addManages","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 科室管理员","id":"909","name":"移除管理员角色","code":"lion:digital:department:deleteManages","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 成员管理","id":"919","name":"查看科室成员列表","code":"lion:digital:mumbers:list","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"√"}},{"cat":"科室管理 › 数字疗法 › 成员管理","id":"920","name":"添加科室成员","code":"lion:digital:mumbers:add","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 成员管理","id":"921","name":"查看科室成员详情","code":"lion:digital:mumbers:detail","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"√"}},{"cat":"科室管理 › 数字疗法 › 成员管理","id":"922","name":"启用/停用科室成员","code":"lion:digital:mumbers:inuse","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 成员管理","id":"923","name":"移除科室成员","code":"lion:digital:mumbers:delete","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 成员管理","id":"924","name":"添加角色","code":"lion:digital:mumbers:addRole","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 成员管理","id":"925","name":"移除角色","code":"lion:digital:mumbers:deleteRole","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"科室管理 › 数字疗法 › 下载科室二维码","id":"1289","name":"下载科室二维码","code":"lion:digital:department:detail:qrcode","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"271","name":"医生详情查看","code":"doctor:detail:read","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"√","个案管理员":"√"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"275","name":"医生发送信息","code":"doctor:feedback","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"√","个案管理员":"√"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"420","name":"医患咨询列表","code":"doctor:detail:read:session:list","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"√","个案管理员":"√"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"512","name":"设为测试/取消测试","code":"doctor:overview:set:test","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"518","name":"查看基础信息","code":"doctor:overview:base:msg","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"√","个案管理员":"√"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"519","name":"编辑基础信息","code":"doctor:overview:set:msg","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"546","name":"编辑证件信息","code":"doctor:detail:edit:extra:msg","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"568","name":"ta的患者","code":"doctor:detail:read:hispatient:list","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"√","个案管理员":"√"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"674","name":"查看医生详细手机号","code":"doctor:overview:base:msg:phone","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"873","name":"修改电话号码","code":"lion:doctor:member:set:phone","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"929","name":"查看权限管理","code":"doctor:detail:read:auth:manage","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"√","个案管理员":"√"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"1073","name":"所属治疗组","code":"doctor:detail:read:dtx:list","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"√","个案管理员":"√"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"1168","name":"作废资质信息","code":"doctor:detail:invalid:auth","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"1292","name":"查看医生姓名","code":"doctor:overview:base:msg:sensitive:realname","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"√","个案管理员":"√"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"1293","name":"查看医生手机号","code":"doctor:overview:base:msg:sensitive:phone","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"√","个案管理员":"√"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"272","name":"新建医生","code":"doctor:cooperation:create","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"276","name":"批量发送消息","code":"doctor:batch:feedback","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"510","name":"批量设置测试/取消测试","code":"doctor:list:set:test","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看","id":"541","name":"编辑基本信息","code":"doctor:list:edit:msg","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看 › 临时密码管理","id":"655","name":"临时密码查看","code":"damo:inside:auth:code:read","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看 › 临时密码管理","id":"656","name":"创建临时密码","code":"damo:inside:auth:code:add","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看 › 临时密码管理","id":"657","name":"作废临时密码","code":"damo:inside:auth:code:deprecated","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看 › 临时密码管理","id":"658","name":"复制临时密码","code":"damo:inside:auth:code:copy","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医生列表 › 医生详情查看 › 临时密码管理","id":"659","name":"查询临时密码日志","code":"damo:inside:auth:operation:log","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医护账号管理","id":"1192","name":"实名认证信息提交","code":"lion:doctor:medicalstaff:submit:cert","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 认证审核","id":"505","name":"查看认证审核列表","code":"doctor:review:list:read","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 认证审核","id":"507","name":"批量设为测试/取消测试","code":"doctor:review:set:test","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 认证审核","id":"508","name":"查看审核详情","code":"doctor:review:detail:read","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 认证审核","id":"509","name":"审核","code":"doctor:review:set:review","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 认证审核","id":"998","name":"备案审核","code":"lion:doctor:filing","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"医生中心 › 医患咨询列表","id":"287","name":"医患咨询列表","code":"doctor:patient:consultation","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"基础数据 › 医院管理","id":"860","name":"查看医院列表","code":"lion:organization:hospital:management:list","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"基础数据 › 医院管理","id":"861","name":"新建医院","code":"lion:organization:hospital:add","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"基础数据 › 医院管理","id":"862","name":"查看医院详情","code":"lion:organization:hospital:detail","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"基础数据 › 医院管理","id":"863","name":"修改医院信息","code":"lion:organization:hospital:update","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"基础数据 › 医院管理","id":"864","name":"设为测试/取消测试","code":"lion:organization:hospital:setTest","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"基础数据 › 医院管理","id":"865","name":"删除医院","code":"lion:organization:hospital:delete","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"基础数据 › 医院管理","id":"866","name":"新建科室","code":"lion:organization:hospital:adddepartment","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"基础数据 › 医院管理","id":"867","name":"编辑科室","code":"lion:organization:hospital:editdepartment","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"基础数据 › 医院管理","id":"1288","name":"查看医院科室","code":"lion:organization:hospital:department:list","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"用户运营","id":"1297","name":"版本管理","code":"lion:manage:app:version","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"用户运营","id":"570","name":"资源位","code":"manage:center:resource:list","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"日志行为审计","id":"1284","name":"日志行为审计","code":"lion:log:audit","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"数据管理 › config配置","id":"1286","name":"config配置","code":"lion:data:config","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"数据管理 › schema配置","id":"1287","name":"schema配置","code":"lion:data:schema","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"反馈中心","id":"343","name":"反馈列表","code":"feedback:list","desc":"","note":"","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","用户运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"√","个案管理员":"x"}},{"cat":"反馈中心","id":"344","name":"回复","code":"feedback:reply","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"账户注销申请","id":"475","name":"账户注销申请","code":"lion:user:release","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"保险","id":"1279","name":"履约服务管理","code":"lion:insurance:right:performance","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"保险","id":"1281","name":"VIP激活查询","code":"lion:insurance:right:vip","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}},{"cat":"重置医护账号密码","id":"1282","name":"重置医护账号密码","code":"lion:admin:resetPassword","desc":"","note":"","rights":{"COC管理员":"x","运营管理员":"√","产品运营":"√","用户运营":"x","数据运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√","病案管理员":"x","个案管理员":"x"}}],"matrix":true},{"name":"小二中心（权限管理）","roles":[{"name":"运营管理员","group":"运营"},{"name":"产品管理员","group":"产品"},{"name":"技术管理员","group":"技术"}],"items":[{"cat":"小二用户中心管理后台 › 用户中心用户管理","id":"432","name":"用户列表","code":"sso:user:search","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心用户管理","id":"433","name":"用户详情","code":"sso:user:detail","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心用户管理","id":"434","name":"修改密码","code":"sso:user:edit:password","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心用户管理","id":"435","name":"注销用户","code":"sso:user:logoff","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心用户管理","id":"436","name":"赋予角色","code":"sso:user:give:role","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心用户管理","id":"437","name":"删除角色","code":"sso:user:remove:role","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心用户管理","id":"438","name":"添加用户","code":"sso:user:create","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心用户管理","id":"439","name":"更新用户","code":"sso:user:update","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心角色管理","id":"440","name":"角色列表","code":"sso:role:search","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心角色管理","id":"441","name":"创建角色","code":"sso:role:create","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心角色管理","id":"442","name":"更新角色","code":"sso:role:update","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心角色管理","id":"443","name":"角色详情","code":"sso:role:detail","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心角色管理","id":"444","name":"删除角色","code":"sso:role:delete","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心权限管理","id":"445","name":"权限列表","code":"sso:permission:search","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心权限管理","id":"446","name":"新增权限","code":"sso:permission:create","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心权限管理","id":"447","name":"更新权限","code":"sso:permission:update","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心权限管理","id":"448","name":"上移","code":"sso:permission:up","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心权限管理","id":"449","name":"下移","code":"sso:permission:down","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心权限管理","id":"450","name":"删除权限","code":"sso:permission:delete","desc":"","note":"","rights":{"运营管理员":"√","产品管理员":"√","技术管理员":"√"}},{"cat":"小二用户中心管理后台 › 用户中心应用管理","id":"431","name":"应用列表","code":"sso:app:list","desc":"","note":"","rights":{"运营管理员":"x","产品管理员":"x","技术管理员":"√"}}],"matrix":true},{"name":"知识库","roles":[{"name":"运营管理员","group":"运营"},{"name":"产品运营","group":"运营"},{"name":"用户运营","group":"运营"},{"name":"产品管理员","group":"产品"},{"name":"产品经理","group":"产品"},{"name":"技术管理员","group":"技术"}],"items":[{"cat":"知识库 › 元数据管理菜单 › 药物分类菜单","id":"775","name":"查看","code":"metis:datamanage:matedataClass:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药物分类菜单","id":"776","name":"新增","code":"metis:datamanage:matedataClass:add","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药物分类菜单","id":"777","name":"编辑","code":"metis:datamanage:matedataClass:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药物分类菜单","id":"778","name":"删除","code":"metis:datamanage:matedataClass:delete","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药物列表菜单","id":"779","name":"查看","code":"metis:datamanage:medicineList:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药物列表菜单","id":"780","name":"新增","code":"metis:datamanage:medicineList:add","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药物列表菜单","id":"781","name":"编辑","code":"metis:datamanage:medicineList:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药物列表菜单","id":"782","name":"删除","code":"metis:datamanage:medicineList:delete","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 标准方案","id":"784","name":"查看","code":"metis:datamanage:standardSolution:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 标准方案","id":"785","name":"新增","code":"metis:datamanage:standardSolution:add","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 标准方案","id":"786","name":"编辑","code":"metis:datamanage:standardSolution:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 标准方案","id":"787","name":"删除","code":"metis:datamanage:standardSolution:delete","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 不良事件","id":"783","name":"查看","code":"metis:datamanage:adverseEvents:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药品商品","id":"1045","name":"查看","code":"metis:datamanage:drugProducts:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药品商品","id":"1046","name":"新增","code":"metis:datamanage:drugProducts:add","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药品商品","id":"1047","name":"编辑","code":"metis:datamanage:drugProducts:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药品商品","id":"1048","name":"删除","code":"metis:datamanage:drugProducts:delete","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药品用法","id":"1050","name":"查看","code":"metis:datamanage:drugUsage:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药品用法","id":"1051","name":"新增","code":"metis:datamanage:drugUsage:add","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药品用法","id":"1052","name":"编辑","code":"metis:datamanage:drugUsage:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 元数据管理菜单 › 药品用法","id":"1053","name":"删除","code":"metis:datamanage:drugUsage:delete","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 文档库菜单 › 文档库管理菜单","id":"796","name":"查看","code":"metis:document:docuCenter:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 文档库菜单 › 文档库管理菜单","id":"797","name":"新增","code":"metis:document:docuCenter:add","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 文档库菜单 › 文档库管理菜单","id":"798","name":"编辑","code":"metis:document:docuCenter:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 文档库菜单 › 文档库管理菜单","id":"799","name":"删除","code":"metis:document:docuCenter:delete","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 文档库菜单 › 类目模版管理菜单","id":"800","name":"查看","code":"metis:document:docCategroy:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 文档库菜单 › 类目模版管理菜单","id":"801","name":"新增","code":"metis:document:docCategroy:add","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 文档库菜单 › 类目模版管理菜单","id":"802","name":"编辑","code":"metis:document:docCategroy:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 文档库菜单 › 类目模版管理菜单","id":"803","name":"删除","code":"metis:document:docCategroy:delete","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 文档库菜单 › 文档模版管理菜单","id":"804","name":"查看","code":"metis:document:template:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 文档库菜单 › 文档模版管理菜单","id":"805","name":"新增","code":"metis:document:template:add","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 文档库菜单 › 文档模版管理菜单","id":"806","name":"编辑","code":"metis:document:template:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 文档库菜单 › 文档模版管理菜单","id":"807","name":"删除","code":"metis:document:template:delete","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 类目管理","id":"829","name":"查看","code":"metis:labelcenter:categoryList:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 类目管理","id":"830","name":"新增","code":"metis:labelcenter:categoryList:add","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 类目管理","id":"831","name":"编辑","code":"metis:labelcenter:categoryList:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 类目管理","id":"832","name":"删除","code":"metis:labelcenter:categoryList:delete","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 标签池","id":"833","name":"查看","code":"metis:labelcenter:tagList:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 标签池","id":"834","name":"新增","code":"metis:labelcenter:tagList:add","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 标签池","id":"835","name":"编辑","code":"metis:labelcenter:tagList:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 标签池","id":"836","name":"删除","code":"metis:labelcenter:tagList:delete","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 场景管理","id":"837","name":"查看","code":"metis:labelcenter:sceneList:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 场景管理","id":"838","name":"新增","code":"metis:labelcenter:sceneList:add","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 场景管理","id":"839","name":"编辑","code":"metis:labelcenter:sceneList:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 场景管理","id":"840","name":"删除","code":"metis:labelcenter:sceneList:delete","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 标签权重","id":"841","name":"查看","code":"metis:labelcenter:weightList:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 标签权重","id":"842","name":"新增","code":"metis:labelcenter:weightList:add","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 标签权重","id":"843","name":"编辑","code":"metis:labelcenter:weightList:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 标签管理 › 标签权重","id":"844","name":"删除","code":"metis:labelcenter:weightList:delete","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}},{"cat":"知识库 › 视频中心 › 视频列表","id":"845","name":"编辑","code":"metis:videocenter:videoList:edit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 视频中心 › 视频列表","id":"846","name":"视频上/下线","code":"metis:videocenter:videoList:online","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 视频中心 › 视频列表","id":"847","name":"上传视频","code":"metis:videocenter:videoList:upload","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"x","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 视频中心 › 视频列表","id":"848","name":"预览视频","code":"metis:videocenter:videoList:play","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 视频中心 › 视频列表","id":"850","name":"查看","code":"metis:videocenter:videoList:view","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","用户运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"知识库 › 系统设置 › 操作记录","id":"857","name":"操作记录","code":"metis:system:oprationRecords","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"x","用户运营":"x","产品管理员":"√","产品经理":"x","技术管理员":"√"}}],"matrix":true},{"name":"患教资源库管理平台","roles":[{"name":"运营管理员","group":"运营"},{"name":"产品运营","group":"运营"},{"name":"产品管理员","group":"产品"},{"name":"产品经理","group":"产品"},{"name":"技术管理员","group":"技术"}],"items":[{"cat":"患教资源库管理平台 › 患教管理菜单 › 公共库","id":"1074","name":"公共库","code":"public-library","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"患教资源库管理平台 › 患教管理菜单 › 科室库审核","id":"1075","name":"科室库审核","code":"department-library-audit","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"患教资源库管理平台 › 治疗方案 › 治疗方案列表","id":"1015","name":"治疗方案列表","code":"treatment-case:case","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"患教资源库管理平台 › 治疗方案 › 待归类","id":"1016","name":"待归类","code":"treatment-case:classify","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"患教资源库管理平台 › 问卷管理","id":"1057","name":"问卷管理","code":"questionnaire","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"患教资源库管理平台 › 问卷库审核","id":"1188","name":"问卷库审核","code":"question-audit-list","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√"}},{"cat":"患教资源库管理平台 › 计划模板","id":"1283","name":"计划模板","code":"template","desc":"","note":"","rights":{"运营管理员":"√","产品运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√"}}],"matrix":true},{"name":"埋点管理系统","roles":[{"name":"产品管理员","group":"产品"},{"name":"技术管理员","group":"技术"}],"items":[{"cat":"埋点管理平台 › 元数据维护","id":"1294","name":"元数据维护","code":"data-tracker:metadatav2","desc":"","note":"","rights":{"产品管理员":"√","技术管理员":"√"}},{"cat":"埋点管理平台 › 页面分析","id":"1295","name":"页面分析","code":"data-tracker:pageanalyze","desc":"","note":"","rights":{"产品管理员":"√","技术管理员":"√"}},{"cat":"埋点管理平台 › 行为路径分析","id":"1296","name":"行为路径分析","code":"data-tracker:userpath","desc":"","note":"","rights":{"产品管理员":"√","技术管理员":"√"}}],"matrix":true},{"name":"数据平台","roles":[{"name":"COC管理员","group":"管理层"},{"name":"运营管理员","group":"运营"},{"name":"产品运营","group":"运营"},{"name":"数据运营","group":"运营"},{"name":"产品管理员","group":"产品"},{"name":"产品经理","group":"产品"},{"name":"技术管理员","group":"技术"},{"name":"个案管理员","group":"个案"},{"name":"项目经理","group":"业务"},{"name":"商务经理","group":"业务"},{"name":"外部合作方","group":"其他"}],"items":[{"cat":"数据平台 › COC科室","id":"1280","name":"科室数据","code":"data:bi:buryingPoint","desc":"","note":"导出功能需要技术开通","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","个案管理员":"√","项目经理":"√","商务经理":"√","外部合作方":"√"}},{"cat":"数据平台 › COC科室","id":"1306","name":"管案质控","code":"data:bi:case-data","desc":"","note":"导出功能需要技术开通","rights":{"COC管理员":"√","运营管理员":"√","产品运营":"√","数据运营":"√","产品管理员":"√","产品经理":"√","技术管理员":"√","个案管理员":"√","项目经理":"√","商务经理":"√","外部合作方":"√"}}],"matrix":true},{"name":"质控平台（OCR后台）","roles":[],"items":[{"cat":"质控平台 › 欢迎光临 › 待办事项","id":"244","name":"待办事项查看","code":"index:todo:list:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 欢迎光临 › 医生中心概览","id":"246","name":"医生中心概览查看","code":"index:doctor:overview:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 用户管理","id":"734","name":"设为测试取消测试","code":"lion:user:member:set:test","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 用户管理","id":"735","name":"启用停用账号","code":"lion:user:member:set:able","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 用户管理","id":"736","name":"查看用户详情","code":"lion:user:member:list:detail","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 用户管理","id":"743","name":"修改患者绑定手机号","code":"lion:user:member:set:phone","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 用户管理","id":"1243","name":"用户打标","code":"lion:user:member:set:tag","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历管理-查看病历详情","id":"731","name":"修改病历","code":"lion:casehistory:modifycase","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历管理-查看病历详情","id":"732","name":"修改化验指标","code":"lion:casehistory:modifytarget","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历管理-查看病历详情","id":"733","name":"修改基本信息","code":"lion:casehistory:modifybasicinfo","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历管理-查看病历详情","id":"808","name":"查看家属共管列表","code":"lion:casehistory:comanagement","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历管理-查看病历详情","id":"809","name":"管理家属共管","code":"lion:casehistory:operate:comanagement","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历管理-查看病历详情","id":"1190","name":"病程概要对患者可见","code":"lion:casehistory:mrvisible","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历管理-查看病历详情","id":"1280","name":"病历操作记录管理","code":"lion:casehistory:operaterecord:manage","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历搜索","id":"1181","name":"病历搜索","code":"lion:casehistory:search","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者高级搜索","id":"574","name":"患者高级搜索","code":"lion:patient:advancesearch","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"683","name":"领取/批量领取工单","code":"lion:patient:mr:workflow:get","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"684","name":"查看工单详情","code":"lion:patient:mr:workflow:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"584","name":"移出/批量移出工单","code":"lion:patient:mr:workflow:remove","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"685","name":"去处理/开始处理工单","code":"lion:patient:mr:workflow:manage","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"585","name":"指派/批量指派工单","code":"lion:patient:mr:workflow:dispatch","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"686","name":"待分配","code":"lion:patient:ocr:task:waitDispatch","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"586","name":"审核工单","code":"lion:patient:mr:workflow:audit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"687","name":"待处理","code":"lion:patient:ocr:task:waitOperate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"688","name":"处理中","code":"lion:patient:ocr:task:operating","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"625","name":"作废/批量作废工单","code":"lion:patient:mr:workflow:discard","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"689","name":"待审核","code":"lion:patient:ocr:task:waitAudit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"690","name":"审核不通过","code":"lion:patient:ocr:task:auditRefuse","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"691","name":"已完成","code":"lion:patient:ocr:task:finished","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历OCR","id":"692","name":"已作废","code":"lion:patient:ocr:task:discard","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历复核","id":"1193","name":"病历复核","code":"lion:patient:mr:review","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"610","name":"审核通过","code":"damo:patient:indicator:workflow:audit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"615","name":"作废/批量作废工单","code":"damo:patient:indicator:workflow:discard","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"677","name":"领取/批量领取工单","code":"damo:patient:indicator:workflow:receive","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"611","name":"指派/批量指派工单","code":"damo:patient:indicator:workflow:dispatch","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"678","name":"去处理/开始处理工单","code":"damo:patient:indicator:workflow:handle","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"612","name":"移出/批量移出工单","code":"damo:patient:indicator:workflow:remove","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"679","name":"查看工单详情","code":"damo:patient:indicator:workflow:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"613","name":"审核拒绝","code":"damo:patient:indicator:workflow:refuse","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"693","name":"待分配","code":"lion:patient:indicator:task:waitDispatch","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"694","name":"待处理","code":"lion:patient:indicator:task:waitOperate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"695","name":"待审核","code":"lion:patient:indicator:task:waitAudit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"696","name":"审核不通过","code":"lion:patient:indicator:task:auditRefuse","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"697","name":"已完成","code":"lion:patient:indicator:task:finished","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"698","name":"处理中","code":"lion:patient:indicator:task:operating","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 指标识别","id":"699","name":"已作废","code":"lion:patient:indicator:task:discard","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 成员管理","id":"576","name":"成员管理","code":"lion:patient:member:manage","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"250","name":"病程记录编辑","code":"patient:mr:coursedisease:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"251","name":"患者基本信息编辑","code":"patient:mr:info:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"249","name":"病历OCR处理","code":"patient:mr:ocr","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"252","name":"患者专家会审订单预审","code":"patient:mr:order:pre:verify","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"253","name":"患者问答","code":"patient:faq:answer","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"254","name":"患者反馈","code":"patient:feedback","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"255","name":"患者备注","code":"patient:remark","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"256","name":"患者发放优惠券","code":"patient:grant:coupons","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"257","name":"患者跟踪","code":"patient:track","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"269","name":"查看邀请医生","code":"patient:doctor:relationship:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"392","name":"患者服务订单退款","code":"patient:mr:order:refund","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"660","name":"创建临时密码","code":"damo:inside:auth:patient:add","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"661","name":"查看临时密码列表","code":"damo:inside:auth:patient:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"662","name":"作废临时密码","code":"damo:inside:auth:patient:deprecated","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"663","name":"复制临时密码","code":"damo:inside:auth:patient:copy","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者中心-患者详情查看","id":"664","name":"查询临时密码日志","code":"damo:inside:patient:operation:log","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 患者批量反馈","id":"258","name":"患者批量反馈","code":"patient:batch:feedback","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › AI诊疗建议","id":"566","name":"AI诊疗建议","code":"lion:aisuggest","desc":"","note":"","rights":{}},{"cat":"质控平台 › 病历中心 › 病历半结构化","id":"1278","name":"病历半结构化","code":"lion:patient:ocr:semi-structure","desc":"","note":"","rights":{}},{"cat":"质控平台 › 临床试验 › 病历半结构化","id":"374","name":"申请单列表","code":"lion:clinical:apply:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 临床试验 › 病历半结构化","id":"375","name":"患者列表","code":"lion:clinical:ocr:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 临床试验 › 病历半结构化","id":"583","name":"药物管理","code":"lion:clinical:drug:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 临床试验 › 病历半结构化","id":"652","name":"ai报告订单-查看详情-查看病历","code":"lion:cacoai:report:order:detail:mr:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"624","name":"CSCO AI 发起退款","code":"lion:cscoai:report:refund","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"626","name":"报告列表-删除","code":"lion:cacoai:report:list:delete","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"627","name":"报告列表-患者详情","code":"lion:cacoai:report:list:patient:detail","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"628","name":"报告列表-查看补充说明","code":"lion:cacoai:report:list:view:supply","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"629","name":"报告列表-查看上传资料","code":"lion:cacoai:report:list:view:upload","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"630","name":"报告列表-打回","code":"lion:cacoai:report:list:refuse","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"631","name":"报告列表-通过","code":"lion:cacoai:report:list:pass","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"632","name":"报告列表-指派给","code":"lion:cacoai:report:list:deliver","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"633","name":"报告列表-改派","code":"lion:cacoai:report:list:redeliver","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"634","name":"报告列表-报告预览","code":"lion:cacoai:report:list:preview","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"635","name":"报告列表-报告编辑","code":"lion:cacoai:report:list:report:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"636","name":"报告列表-上传报告","code":"lion:cacoai:report:list:report:upload","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"637","name":"报告列表-报告下载","code":"lion:cacoai:report:list:report:download","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"638","name":"报告列表-发放申请奖励","code":"lion:cacoai:report:list:awrad:apply","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"639","name":"报告列表-发放审核奖励","code":"lion:cacoai:report:list:awrad:verify","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"640","name":"报告列表-后台推送电子报告","code":"lion:cacoai:report:list:report:push","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"641","name":"报告列表-导出邮寄信息","code":"lion:cacoai:report:list:post:export","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"642","name":"报告列表-邮寄信息","code":"lion:cacoai:report:list:post:info","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"643","name":"报告列表-确认邮寄","code":"lion:cacoai:report:list:post:confirm","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"644","name":"报告列表-手动发放奖励","code":"lion:cacoai:report:list:award:hand","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"645","name":"渠道-新增渠道","code":"lion:cacoai:report:channel:add","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"646","name":"渠道-渠道个性化-查看","code":"lion:cacoai:report:channel:view","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"647","name":"渠道-操作-编辑","code":"lion:cacoai:report:channel:operate:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"648","name":"渠道-操作-查看","code":"lion:cacoai:report:channel:operate:view","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"649","name":"ai报告订单-操作-指派申请医生","code":"lion:cacoai:report:order:deliver","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"650","name":"ai报告订单-操作-查看详情","code":"lion:cacoai:report:order:detail","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"651","name":"ai报告订单-操作-查看病历","code":"lion:cacoai:report:order:mr:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"653","name":"ai报告订单-查看详情-发起后台退款","code":"lion:cacoai:report:order:detail:refund","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 病历半结构化","id":"654","name":"ai报告订单-查看详情-编辑收件人信息","code":"lion:cacoai:report:order:detail:post:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 任务流管理","id":"934","name":"任务流管理-查看","code":"lion:cacoai:taskflow:view","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 任务流管理","id":"935","name":"任务流管理-编辑","code":"lion:cacoai:taskflow:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 任务流管理","id":"936","name":"任务流管理-新增","code":"lion:cacoai:taskflow:add","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"938","name":"科室配置-查看","code":"lion:cacoai:department:view","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"939","name":"科室配置-编辑","code":"lion:cacoai:department:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"940","name":"科室配置-新增","code":"lion:cacoai:department:add","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"941","name":"科室配置-医生额度发放","code":"lion:cacoai:department:doctor:quot","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"974","name":"报告列表-取消","code":"lion:cacoai:report:list:cancel","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"1206","name":"用户列表查看详情","code":"lion:cacoai:match:userList:previewDetail","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"1207","name":"用户列表备注","code":"lion:cacoai:match:userList:operationNote","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"1208","name":"报告详情导入","code":"lion:cacoai:match:singUpDetail:import","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"1209","name":"报告详情导出","code":"lion:cacoai:match:singUpDetail:export","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"1210","name":"报告详情审核通过","code":"lion:cacoai:match:singUpDetail:approved","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"1211","name":"报告详情审核不通过","code":"lion:cacoai:match:singUpDetail:notApproved","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"1212","name":"报告详情修改赛区","code":"lion:cacoai:match:singUpDetail:updateZone","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"1213","name":"报告详情查看详情","code":"lion:cacoai:match:singUpDetail:previewDetail","desc":"","note":"","rights":{}},{"cat":"质控平台 › CSCO AI › 科室配置","id":"1214","name":"奖励信息导出权限","code":"lion:cacoai:match:rewardList:export","desc":"","note":"","rights":{}},{"cat":"质控平台 › 数字疗法科室 › 科室配置","id":"1256","name":"数字疗法治疗组","code":"lion:digital:treatment:manage","desc":"","note":"","rights":{}},{"cat":"质控平台 › 数字疗法科室 › 科室配置","id":"1187","name":"机构配置","code":"lion:digital:org:config","desc":"","note":"","rights":{}},{"cat":"质控平台 › 数字疗法科室 › 科室配置","id":"1194","name":"专科联盟管理","code":"lion:digital:league:manage","desc":"","note":"","rights":{}},{"cat":"质控平台 › 数字疗法科室 › 科室配置","id":"1275","name":"加班申请单","code":"lion:digital:doctorAppoint:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 数字疗法科室 › 科室配置","id":"1277","name":"待创建计划","code":"lion:digital:onlineCureplan","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"274","name":"医生奖励发放","code":"doctor:grant:reward","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"275","name":"医生发送信息","code":"doctor:feedback","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"416","name":"查看邀请数据","code":"doctor:detail:read:invite:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"418","name":"账户流水列表","code":"doctor:detail:read:account:detail","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"419","name":"提现审核列表","code":"doctor:detail:read:withdrawal:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"420","name":"医患咨询列表","code":"doctor:detail:read:session:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"421","name":"顾问服务列表","code":"doctor:detail:read:adviser:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"422","name":"音频服务列表","code":"doctor:detail:read:audio:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"423","name":"审稿服务列表","code":"doctor:detail:read:review:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"424","name":"邀约医生列表","code":"doctor:detail:read:invitation:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"425","name":"文章服务","code":"doctor:detail:read:article:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"512","name":"设为测试/取消测试","code":"doctor:overview:set:test","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"518","name":"查看基础信息","code":"doctor:overview:base:msg","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"519","name":"编辑基础信息","code":"doctor:overview:set:msg","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"522","name":"查看服务项目","code":"doctor:overview:server:project","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"524","name":"新建顾问服务","code":"doctor:overview:add:adviser","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"525","name":"新建音频服务","code":"doctor:overview:add:audio","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"544","name":"医患邀请列表","code":"doctor:detail:read:patient:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"527","name":"新建邀约医生","code":"doctor:overview:add:invitation","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"546","name":"编辑证件信息","code":"doctor:detail:edit:extra:msg","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"529","name":"新建审稿","code":"doctor:overview:add:review","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"568","name":"ta的患者","code":"doctor:detail:read:hispatient:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"530","name":"新建文章","code":"doctor:overview:add:article","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"655","name":"临时密码查看","code":"damo:inside:auth:code:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"656","name":"创建临时密码","code":"damo:inside:auth:code:add","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"657","name":"作废临时密码","code":"damo:inside:auth:code:deprecated","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"658","name":"复制临时密码","code":"damo:inside:auth:code:copy","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"659","name":"查询临时密码日志","code":"damo:inside:auth:operation:log","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"667","name":"复制邀请患者链接","code":"doctor:copy:invite:patient:link","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"668","name":"下载邀请患者二维码图片","code":"doctor:download:invite:patient:qrcode","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"674","name":"查看医生详细手机号","code":"doctor:overview:base:msg:phone","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"873","name":"修改电话号码","code":"lion:doctor:member:set:phone","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"929","name":"查看权限管理","code":"doctor:detail:read:auth:manage","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"1073","name":"加入的数疗机构","code":"doctor:detail:read:dtx:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"1168","name":"作废资质信息","code":"doctor:detail:invalid:auth","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"1227","name":"临床招募","code":"doctor:detail:clinical","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生列表-医生详情查看","id":"1242","name":"奇迹号患者列表","code":"doctor:detail:read:qipatient","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心","id":"272","name":"新建医生","code":"doctor:cooperation:create","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心","id":"276","name":"批量发送消息","code":"doctor:batch:feedback","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心","id":"510","name":"批量设置测试/取消测试","code":"doctor:list:set:test","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心","id":"541","name":"编辑基本信息","code":"doctor:list:edit:msg","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心","id":"930","name":"批量发放奖励","code":"doctor:grant:reward:batch","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心","id":"1161","name":"奖励审核","code":"doctor:reward:audit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医护账号管理","id":"1192","name":"实名认证信息提交","code":"lion:doctor:medicalstaff:submit:cert","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 认证审核","id":"505","name":"查看认证审核列表","code":"doctor:review:list:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 认证审核","id":"507","name":"批量设为测试/取消测试","code":"doctor:review:set:test","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 认证审核","id":"508","name":"查看审核详情","code":"doctor:review:detail:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 认证审核","id":"509","name":"审核","code":"doctor:review:set:review","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 备案审核","id":"998","name":"备案审核","code":"lion:doctor:filing","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医患邀请列表","id":"278","name":"医患关系列表","code":"doctor:patient:relationship:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 邀请同事列表","id":"280","name":"邀请同事列表","code":"doctor:invite:colleague:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 提现审核","id":"282","name":"查看提现审核列表","code":"doctor:withdrawal:verify:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 提现审核","id":"547","name":"导出提现申请","code":"doctor:withdrawal:verify:export","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 提现审核","id":"548","name":"导入提现结果","code":"doctor:withdrawal:verify:import","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生账户列表","id":"284","name":"医生账户列表","code":"doctor:account:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医生有奖问答","id":"286","name":"医生有奖问答列表","code":"doctor:faq:reward:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 医患咨询列表","id":"288","name":"医患咨询列表","code":"doctor:patient:consultation:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 签约医生","id":"385","name":"签约医生","code":"signing:doctor:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 名医地图管理","id":"386","name":"名医地图管理","code":"famous:doctor:map","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 义诊直播管理","id":"387","name":"义诊直播管理","code":"free:clinic:live","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 日间化疗中心","id":"676","name":"日间化疗中心","code":"daytime:chemotherapy","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 药房维护","id":"810","name":"药房维护","code":"pharmacy:maintenance","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 转诊医生管理","id":"811","name":"转诊医生管理","code":"referral:doctors","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › MDT医生管理","id":"812","name":"MDT医生管理","code":"mdt:doctors","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 权限组管理","id":"889","name":"权限组管理","code":"lion:authority:group:manage","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 权限码管理","id":"890","name":"权限码管理","code":"lion:authority:code:manage","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 科室列表（弃用）","id":"1054","name":"科室列表（弃用）","code":"department:share","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 奖励任务管理","id":"1080","name":"奖励任务列表查看","code":"lion:reward:task:manage:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 奖励任务管理","id":"1081","name":"新建奖励任务","code":"lion:reward:task:manage:create","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 奖励任务管理","id":"1082","name":"查看详情","code":"lion:reward:task:manage:detail","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 奖励任务管理","id":"1083","name":"批量导入任务","code":"lion:reward:task:manage:batch","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 奖励任务管理","id":"1084","name":"作废任务","code":"lion:reward:task:manage:del","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 奖励任务管理","id":"1099","name":"审核","code":"lion:reward:task:manage:audit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 医生中心 › 奖励任务管理","id":"1167","name":"批量审核","code":"lion:reward:task:manage:batchAudit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 医院管理","id":"860","name":"查看医院列表","code":"lion:organization:hospital:management:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 医院管理","id":"861","name":"新建医院","code":"lion:organization:hospital:add","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 医院管理","id":"862","name":"查看医院详情","code":"lion:organization:hospital:detail","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 医院管理","id":"863","name":"修改医院信息","code":"lion:organization:hospital:update","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 医院管理","id":"864","name":"设为测试/取消测试","code":"lion:organization:hospital:setTest","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 医院管理","id":"865","name":"删除医院","code":"lion:organization:hospital:delete","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 医院管理","id":"866","name":"新建科室","code":"lion:organization:hospital:adddepartment","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 医院管理","id":"867","name":"编辑科室","code":"lion:organization:hospital:editdepartment","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 病历标签","id":"1147","name":"标签列表查看","code":"lion:basic:tag:mng:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 病历标签","id":"1148","name":"标签列表新增","code":"lion:basic:tag:mng:add","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 病历标签","id":"1149","name":"标签列表编辑","code":"lion:basic:tag:mng:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 病历标签","id":"1150","name":"标签列表置为使用","code":"lion:basic:tag:mng:use","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 病历标签","id":"1151","name":"标签管理置为未使用","code":"lion:basic:tag:mng:notuse","desc":"","note":"","rights":{}},{"cat":"质控平台 › 基础数据 › 病历标签模板","id":"1179","name":"病历标签模板","code":"lion:basic:tag:template","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 问答中心","id":"290","name":"患者问答列表","code":"patient:faq:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 问答中心","id":"291","name":"患者问答详情查看","code":"patient:faq:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 问答中心","id":"294","name":"编辑回复内容","code":"patient:faq:reply:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 问答中心","id":"295","name":"删除患者问答答复","code":"patient:faq:reply:delete","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 问答中心","id":"296","name":"移动患者问答","code":"patient:faq:move","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 问答中心","id":"297","name":"置顶患者问答","code":"patient:faq:top","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 指标管理","id":"299","name":"患者指标列表","code":"patient:indicator:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 指标管理","id":"300","name":"患者指标查看","code":"patient:indicator:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 指标管理","id":"301","name":"患者指标新增","code":"patient:indicator:create","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 指标管理","id":"302","name":"患者指标修改","code":"patient:indicator:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 指标管理","id":"303","name":"患者指标删除","code":"patient:indicator:delete","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 报告管理","id":"305","name":"患者报告列表","code":"patient:report:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 报告管理","id":"308","name":"指派","code":"patient:report:assign","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 报告管理","id":"309","name":"上传","code":"patient:report:upload","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 报告管理","id":"310","name":"编辑","code":"patient:report:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 报告管理","id":"311","name":"预览","code":"patient:report:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 报告管理","id":"312","name":"下载","code":"patient:report:download","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 报告管理","id":"313","name":"订单详情查看","code":"patient:report:order:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 报告管理","id":"314","name":"发送邮箱","code":"patient:report:sendmail","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 报告管理","id":"315","name":"确认邮寄","code":"patient:report:sendpost:confirm","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 报告管理","id":"316","name":"邮寄信息","code":"patient:report:sendpost:info:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 名医问诊","id":"318","name":"名医问诊订单列表","code":"patient:famous:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 名医问诊","id":"319","name":"查看","code":"patient:famous:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 名医问诊","id":"320","name":"标记","code":"patient:famous:mark","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 名医问诊","id":"321","name":"暂缓","code":"patient:famous:reprieve","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 名医问诊","id":"322","name":"订单处理","code":"patient:famous:order:handle","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 病情解读","id":"388","name":"病情解读","code":"patient:analysis","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 方案对比分析","id":"389","name":"方案对比分析","code":"patient:treat:analysis","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 回访记录","id":"390","name":"回访记录","code":"patient:back:visit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 病历复制与还原","id":"391","name":"病历复制与还原","code":"patient:case:copy:reduction","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 用户订单","id":"978","name":"订单列表查看","code":"lion:service:order:list:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 用户订单","id":"979","name":"导出订单","code":"lion:service:order:list:export","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 用户订单","id":"980","name":"查看详情","code":"lion:service:order:list:detail","desc":"","note":"","rights":{}},{"cat":"质控平台 › 服务中心 › 用户订单","id":"981","name":"退款","code":"lion:service:order:list:refund","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业订单中心 › 订单列表","id":"1245","name":"导出订单","code":"lion:order:center:list:export","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业订单中心 › 订单列表","id":"1246","name":"导入订单","code":"lion:order:center:list:import","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业订单中心 › 订单列表","id":"1247","name":"查看已删除订单","code":"lion:order:center:list:view_delete","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业订单中心 › 订单列表","id":"1248","name":"导入导出记录","code":"lion:order:center:list:import_export_logs","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业订单中心 › 订单列表","id":"1249","name":"订单归属修改","code":"lion:order:center:belong:modify","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业订单中心 › 订单列表","id":"1250","name":"康复营养业务线查看","code":"lion:order:center:bizline","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业订单中心 › 订单列表","id":"1251","name":"删除订单","code":"lion:order:center:list:delete","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业订单中心 › 商城推广人","id":"1204","name":"商城推广人","code":"lion:service:order:third:sharer","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业订单中心 › 商品中心","id":"1236","name":"增加商品","code":"lion:order:commodity:center:add","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业订单中心 › 商品中心","id":"1237","name":"编辑商品","code":"lion:order:commodity:center:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业订单中心 › 商品中心","id":"1239","name":"批量关联","code":"lion:order:commodity:center:batch","desc":"","note":"","rights":{}},{"cat":"质控平台 › 运营统计 › 统计概览","id":"325","name":"查看","code":"statistics:overview:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 运营统计 › 患者转化","id":"328","name":"查看","code":"statistics:patient:conversion:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 运营统计 › 邀请转化","id":"330","name":"查看","code":"statistics:invite:conversion:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 运营统计 › 自注册转化","id":"332","name":"查看","code":"statistics:selfregist:conversion:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 运营统计 › 患者-业务情况统计(日)","id":"334","name":"查看","code":"statistics:patient:business:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 运营统计 › 医生-业务情况统计(日)","id":"336","name":"查看","code":"statistics:doctor:business:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 运营统计 › 医生收入分布","id":"338","name":"查看","code":"statistics:income:distribution:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 沟通中心 › 消息场景管理","id":"739","name":"消息场景管理","code":"lion:communication:infoscene:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 沟通中心 › 外部模板管理","id":"740","name":"外部模板管理","code":"lion:communication:exttemplate:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 营销管理 › 积分体系","id":"478","name":"积分体系","code":"lion:marketing:manage:integral","desc":"","note":"","rights":{}},{"cat":"质控平台 › 营销管理 › 优惠券中心","id":"480","name":"列表","code":"coupon:list1","desc":"","note":"","rights":{}},{"cat":"质控平台 › 营销管理 › 优惠券中心","id":"481","name":"查看","code":"coupon:read1","desc":"","note":"","rights":{}},{"cat":"质控平台 › 营销管理 › 优惠券中心","id":"482","name":"创建","code":"coupon:create1","desc":"","note":"","rights":{}},{"cat":"质控平台 › 营销管理 › 优惠券推广","id":"1076","name":"优惠券推广","code":"lion:coupon:activity","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 科室商务关系","id":"1260","name":"列表查看","code":"biz:city:list:view","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 科室商务关系","id":"1259","name":"批量操作按钮","code":"biz:city:list:batch","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 商务城市列表","id":"1253","name":"商务城市列表","code":"biz:city:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 医生列表-未绑定医生列表","id":"401","name":"绑定商务","code":"biz:doctor:binding","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 医生列表-未绑定医生列表","id":"402","name":"批量绑定商务","code":"biz:doctor:batch:binding","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 医生列表-已绑定医生列表","id":"403","name":"解除绑定","code":"biz:doctor:unbinding","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 医生列表-已绑定医生列表","id":"404","name":"批量修改绑定","code":"biz:doctor:batch:rebinding","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 医生列表-已绑定医生列表","id":"408","name":"修改绑定","code":"biz:doctor:rebinding","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 医生列表-已绑定医生列表","id":"413","name":"查看医生明细","code":"biz:doctor:detailed:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 医生列表-已绑定医生列表","id":"451","name":"信息维护","code":"biz:doctor:data:maintain","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 统计报表","id":"405","name":"导出","code":"biz:statistics:export","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 统计报表","id":"406","name":"查看明细","code":"biz:statistics:detailed:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 业务明细","id":"407","name":"导出明细","code":"biz:statistics:detailed:export","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 业务明细","id":"414","name":"图文咨询查看详情","code":"biz:consult:read:detail","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商务中心 › 业务概览","id":"474","name":"业务概览","code":"biz:statistics:overview","desc":"","note":"","rights":{}},{"cat":"质控平台 › 优惠券中心","id":"340","name":"列表","code":"coupon:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 优惠券中心","id":"341","name":"查看","code":"coupon:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 优惠券中心","id":"342","name":"创建","code":"coupon:create","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 推送","id":"552","name":"查看患者端app推送列表","code":"push:manage:patient:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 推送","id":"553","name":"新建推送任务","code":"push:manage:create:push","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 推送","id":"554","name":"新建短信任务","code":"msg:manage:create:msg","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 短信","id":"1003","name":"发送登陆验证码","code":"lion:manage:center:send:login:code","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 模板消息","id":"1012","name":"模板消息","code":"manage:center:module:msg","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 订阅消息","id":"1055","name":"订阅消息","code":"wx:mini:push","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 资源位","id":"570","name":"资源位","code":"manage:center:resource:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 科室号JSON配置","id":"571","name":"科室号JSON配置","code":"manage:center:department:json","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 科室号文章配置","id":"572","name":"科室号文章配置","code":"manage:center:department:articles","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › app版本管理","id":"976","name":"app版本管理","code":"lion:manage:app:version","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 医生资讯","id":"977","name":"医生资讯","code":"lion:manage:doctor:information","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 全局触达限制","id":"1134","name":"编辑","code":"manage:center:global:concat:limit:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 全局触达限制","id":"1135","name":"查看","code":"manage:center:global:concat:limit:check","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 渠道追踪","id":"1137","name":"渠道追踪列表","code":"channel:track:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 渠道追踪","id":"1139","name":"新建渠道追踪链接","code":"channel:track:add","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 渠道追踪","id":"1140","name":"查看渠道追踪详情","code":"channel:track:detail","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 渠道追踪","id":"1141","name":"编辑渠道追踪链接","code":"channel:track:edit:base","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 渠道追踪","id":"1142","name":"添加推广渠道","code":"channel:track:edit:url","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 渠道追踪","id":"1143","name":"查看渠道列表","code":"channel:track:channelList","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 渠道追踪","id":"1144","name":"新建渠道","code":"channel:track:channelList:add","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 渠道追踪","id":"1145","name":"编辑渠道","code":"channel:track:channelList:edit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 用户列表-奇迹号","id":"1202","name":"用户列表-奇迹号","code":"manage:center:usercenter:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 用户提现列表-奇迹号","id":"1203","name":"用户提现列表-奇迹号","code":"manage:center:withdraw:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 链接生成","id":"1205","name":"链接生成","code":"manage:center:link","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 奇迹号直播","id":"1261","name":"奇迹号直播","code":"manage:center:qjhlive:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 用户运营 › 群管理","id":"1266","name":"群管理","code":"manage:center:groupManage:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 患友互助 › 受助者管理","id":"1264","name":"受助者管理","code":"lion:patient:help:receiver","desc":"","note":"","rights":{}},{"cat":"质控平台 › 患友互助 › 天使礼包管理","id":"1265","name":"天使礼包管理","code":"lion:patient:help:gift","desc":"","note":"","rights":{}},{"cat":"质控平台 › 反馈中心 › 反馈列表","id":"343","name":"反馈列表","code":"feedback:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 反馈中心 › 回复","id":"344","name":"回复","code":"feedback:reply","desc":"","note":"","rights":{}},{"cat":"质控平台 › 反馈中心 › 视频诊室","id":"503","name":"创建诊室","code":"video:create:meeting","desc":"","note":"","rights":{}},{"cat":"质控平台 › 反馈中心 › 视频诊室","id":"537","name":"会议列表-个性化","code":"video:meeting:custom","desc":"","note":"","rights":{}},{"cat":"质控平台 › 反馈中心 › 视频诊室","id":"504","name":"全局设置","code":"video:global:conf","desc":"","note":"","rights":{}},{"cat":"质控平台 › 反馈中心 › 视频诊室","id":"538","name":"会议成员个性化的保存","code":"video:meeting:custom:save","desc":"","note":"","rights":{}},{"cat":"质控平台 › 反馈中心 › 视频诊室","id":"536","name":"创建或编辑会议中的高级属性配置","code":"video:single:conf","desc":"","note":"","rights":{}},{"cat":"质控平台 › 反馈中心 › 视频诊室","id":"539","name":"会议成员的邀请","code":"video:meeting:custom:invite","desc":"","note":"","rights":{}},{"cat":"质控平台 › 反馈中心 › 视频诊室","id":"540","name":"查看所有会议记录(没有该权限码的则查询被邀请的记录)","code":"video:meeting:all","desc":"","note":"","rights":{}},{"cat":"质控平台 › 反馈中心 › 视频诊室","id":"542","name":"创建或编辑会议中的的基本信息","code":"video:single:base","desc":"","note":"","rights":{}},{"cat":"质控平台 › 反馈中心 › 视频诊室","id":"543","name":"空列表","code":"video:meeting:empty","desc":"","note":"","rights":{}},{"cat":"质控平台 › 账户注销申请 › 视频诊室","id":"475","name":"账户注销申请","code":"lion:user:release","desc":"","note":"","rights":{}},{"cat":"质控平台 › 日志行为审计 › 视频诊室","id":"410","name":"日志行为审计","code":"lion:log:audit","desc":"","note":"","rights":{}},{"cat":"质控平台 › HR中心 › 视频诊室","id":"412","name":"导出上个月提现流水","code":"lion:hr:withdrawal:export","desc":"","note":"","rights":{}},{"cat":"质控平台 › Lion患者敏感信息可读 › 视频诊室","id":"426","name":"Lion患者敏感信息可读","code":"lion:patient:data:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › Lion医生敏感信息可读 › 视频诊室","id":"452","name":"Lion医生敏感信息可读","code":"lion:doctor:data:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › Lion患教运营 › 视频诊室","id":"858","name":"Lion患教运营","code":"lion:patient:education:management","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 活动管理","id":"871","name":"活动管理","code":"commerce:activity","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 用户管理","id":"872","name":"用户管理","code":"commerce:user","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 运营工具","id":"901","name":"公众号推广","code":"lion:official:account:promotion","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 运营工具","id":"1056","name":"小工具集","code":"lion:little:tool:collection","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 权益管理","id":"1067","name":"权益管理","code":"commerce:right","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 理赔管理","id":"1018","name":"理赔管理","code":"commerce:drugplan","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 核销管理","id":"1017","name":"核销管理","code":"commerce:insurance:verification","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 项目管理","id":"1183","name":"项目管理","code":"innovationPay:project","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 入组理赔","id":"1184","name":"入组理赔","code":"innovationPay:audit","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 恒瑞项目","id":"1185","name":"恒瑞项目","code":"innovationPay:hengrui","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 保险计划书管理","id":"1195","name":"保险计划书管理","code":"insurancePlan:list","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 保险计划书管理-查看所有","id":"1196","name":"保险计划书管理-查看所有","code":"insurancePlan:listAll","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 查看保险所有工单","id":"1228","name":"查看保险所有工单","code":"insurancePlanWork:queryAll","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 查看保险工单","id":"1229","name":"查看保险工单","code":"insurancePlanWork:query","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 创建保险工单","id":"1230","name":"创建保险工单","code":"insurancePlanWork:create","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 审核保险工单","id":"1231","name":"审核保险工单","code":"insurancePlanWork:check","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 补充保险工单","id":"1232","name":"补充保险工单","code":"insurancePlanWork:update","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 保险工单重新核保","id":"1233","name":"保险工单重新核保","code":"insurancePlanWork:recreate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 创建保险计划书","id":"1234","name":"创建保险计划书","code":"insurancePlanWork:createplan","desc":"","note":"","rights":{}},{"cat":"质控平台 › 商业运营中心 › 保险线索查看","id":"1274","name":"保险线索查看","code":"insurance:track:order","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 日记管理","id":"1272","name":"日记管理查看","code":"community:diary:operate:view","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 日记管理","id":"1273","name":"日记导出","code":"community:diary:operate:export","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 日记管理","id":"557","name":"用户管理","code":"community:user:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 日记管理","id":"1257","name":"专业号管理","code":"community:professionalAccount:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 日记管理","id":"559","name":"机器人管理","code":"community:robot:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 审核管理","id":"875","name":"日记审核","code":"community:audit:operate:diary","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 报销审核","id":"878","name":"报销审核按钮","code":"community:audit:operate:reimbursement:check","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 报销审核","id":"927","name":"报销列表查看","code":"community:audit:operate:reimbursement:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 提现审核","id":"879","name":"提现审核按钮","code":"community:audit:operate:withdraw:check","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 提现审核","id":"928","name":"提现列表查看","code":"community:audit:operate:withdraw:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 互动管理","id":"561","name":"互动管理","code":"community:interact:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 内容池管理","id":"562","name":"内容池管理","code":"community:pool:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 官方消息","id":"563","name":"官方消息","code":"community:message:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 投诉举报","id":"564","name":"投诉举报","code":"community:report:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 话题管理","id":"587","name":"话题管理","code":"community:topic:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 标签管理","id":"594","name":"标签管理","code":"community:tag:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 合集管理","id":"745","name":"合集管理","code":"community:collection:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 广场热门","id":"744","name":"广场热门","code":"community:hot:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 官网日记管理","id":"595","name":"官网日记管理","code":"community:siteDiary:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 海星书院","id":"902","name":"海星书院","code":"community:school:operate","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 内容管理","id":"1198","name":"课程管理","code":"community:content:operate:class","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 内容管理","id":"1199","name":"系列课管理","code":"community:content:operate:serialclass","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 内容管理","id":"1217","name":"医生创作中心审核","code":"community:content:operate:doctorcreatorcenter","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 内容管理","id":"1241","name":"奇迹号患者列表","code":"community:content:operate:qipatientlist","desc":"","note":"","rights":{}},{"cat":"质控平台 › 社区中心 › 内容管理","id":"1258","name":"扫码医生绑定","code":"community:content:operate:doctoraccount","desc":"","note":"","rights":{}},{"cat":"质控平台 › OCR工具 › OCR联动规则配置","id":"993","name":"OCR联动规则配置","code":"lion:ocr:link:rule:manage","desc":"","note":"","rights":{}},{"cat":"质控平台 › OCR工具 › 指标参数设置","id":"994","name":"指标参数设置","code":"lion:patient:indicator:param:setting","desc":"","note":"","rights":{}},{"cat":"质控平台 › OCR工具 › 查询图片详情","id":"995","name":"查询图片详情","code":"lion:patient:indicator:image:detail","desc":"","note":"","rights":{}},{"cat":"质控平台 › 活动运营 › 病例文件下载","id":"1268","name":"病例文件下载","code":"lion:bservice:diyisangong:file","desc":"","note":"","rights":{}},{"cat":"质控平台 › 活动运营 › 优秀案例管理","id":"1269","name":"优秀案例管理","code":"lion:bservice:diyisangong:case","desc":"","note":"","rights":{}},{"cat":"质控平台 › 活动运营 › 热点洞见管理","id":"1270","name":"热点洞见管理","code":"lion:bservice:diyisangong:hotspot","desc":"","note":"","rights":{}},{"cat":"质控平台 › 活动运营 › 活动会议管理","id":"1271","name":"活动会议管理","code":"lion:bservice:diyisangong:meeting","desc":"","note":"","rights":{}},{"cat":"质控平台 › 敏感数据可查看","id":"1281","name":"敏感数据可查看","code":"lion:base:data:sensitive:read","desc":"","note":"","rights":{}},{"cat":"质控平台 › 敏感数据可编辑","id":"1282","name":"敏感数据可编辑","code":"lion:base:data:sensitive:edit","desc":"","note":"","rights":{}}],"matrix":false},{"name":"OCR权限后台（小二中心）","roles":[],"items":[{"cat":"小二用户中心管理后台 › 用户中心用户管理 › 用户列表","id":"432","name":"用户列表","code":"sso:user:search","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心用户管理 › 用户详情","id":"433","name":"用户详情","code":"sso:user:detail","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心用户管理 › 修改密码","id":"434","name":"修改密码","code":"sso:user:edit:password","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心用户管理 › 注销用户","id":"435","name":"注销用户","code":"sso:user:logoff","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心用户管理 › 赋予角色","id":"436","name":"赋予角色","code":"sso:user:give:role","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心用户管理 › 删除角色","id":"437","name":"删除角色","code":"sso:user:remove:role","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心用户管理 › 添加用户","id":"438","name":"添加用户","code":"sso:user:create","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心用户管理 › 更新用户","id":"439","name":"更新用户","code":"sso:user:update","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心角色管理 › 角色列表","id":"440","name":"角色列表","code":"sso:role:search","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心角色管理 › 创建角色","id":"441","name":"创建角色","code":"sso:role:create","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心角色管理 › 更新角色","id":"442","name":"更新角色","code":"sso:role:update","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心角色管理 › 角色详情","id":"443","name":"角色详情","code":"sso:role:detail","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心角色管理 › 删除角色","id":"444","name":"删除角色","code":"sso:role:delete","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心权限管理 › 权限列表","id":"445","name":"权限列表","code":"sso:permission:search","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心权限管理 › 新增权限","id":"446","name":"新增权限","code":"sso:permission:create","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心权限管理 › 更新权限","id":"447","name":"更新权限","code":"sso:permission:update","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心权限管理 › 上移","id":"448","name":"上移","code":"sso:permission:up","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心权限管理 › 下移","id":"449","name":"下移","code":"sso:permission:down","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心权限管理 › 删除权限","id":"450","name":"删除权限","code":"sso:permission:delete","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心应用管理 › 应用列表","id":"431","name":"应用列表","code":"sso:app:list","desc":"","note":"","rights":{}},{"cat":"小二用户中心管理后台 › 用户中心员工信息管理 › 应用列表","id":"1262","name":"用户中心员工信息管理","code":"sso:staffInfo:index","desc":"","note":"","rights":{}}],"matrix":false},{"name":"LEGO","roles":[],"items":[{"cat":"表单中心 › 数字疗法问卷","id":"","name":"搜索","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 数字疗法问卷","id":"","name":"添加表单","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 数字疗法问卷","id":"","name":"移动","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 数字疗法问卷","id":"","name":"删除","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 数字疗法问卷","id":"","name":"编辑","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 数字疗法问卷","id":"","name":"查看","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 数字疗法问卷","id":"","name":"发布","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 数字疗法问卷","id":"","name":"下线","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 模板","id":"","name":"搜索","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 模板","id":"","name":"添加新模板","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 模板","id":"","name":"移动","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 模板","id":"","name":"删除","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 模板","id":"","name":"编辑","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 模板","id":"","name":"查看","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 模板","id":"","name":"发布","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 模板","id":"","name":"下线","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 成员","id":"","name":"搜索","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 成员","id":"","name":"添加","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 成员","id":"","name":"移除","code":"","desc":"","note":"","rights":{}},{"cat":"表单中心 › 成员","id":"","name":"重新分配角色","code":"","desc":"","note":"","rights":{}}],"matrix":false}],"roles":[{"name":"COC管理员","group":"管理层","count":32,"bySystem":{"运营后台（LION）":30,"数据平台":2},"sysCount":2},{"name":"运营管理员","group":"运营","count":175,"bySystem":{"运营后台（LION）":92,"小二中心（权限管理）":19,"知识库":55,"患教资源库管理平台":7,"数据平台":2},"sysCount":5},{"name":"产品运营","group":"运营","count":118,"bySystem":{"运营后台（LION）":92,"知识库":17,"患教资源库管理平台":7,"数据平台":2},"sysCount":4},{"name":"用户运营","group":"运营","count":27,"bySystem":{"运营后台（LION）":22,"知识库":5},"sysCount":2},{"name":"数据运营","group":"运营","count":23,"bySystem":{"运营后台（LION）":21,"数据平台":2},"sysCount":2},{"name":"产品管理员","group":"产品","count":178,"bySystem":{"运营后台（LION）":92,"小二中心（权限管理）":19,"知识库":55,"患教资源库管理平台":7,"埋点管理系统":3,"数据平台":2},"sysCount":6},{"name":"产品经理","group":"产品","count":118,"bySystem":{"运营后台（LION）":92,"知识库":17,"患教资源库管理平台":7,"数据平台":2},"sysCount":4},{"name":"技术管理员","group":"技术","count":179,"bySystem":{"运营后台（LION）":92,"小二中心（权限管理）":20,"知识库":55,"患教资源库管理平台":7,"埋点管理系统":3,"数据平台":2},"sysCount":6},{"name":"病案管理员","group":"病案","count":12,"bySystem":{"运营后台（LION）":12},"sysCount":1},{"name":"个案管理员","group":"个案","count":20,"bySystem":{"运营后台（LION）":18,"数据平台":2},"sysCount":2},{"name":"商务经理","group":"业务","count":2,"bySystem":{"数据平台":2},"sysCount":1},{"name":"项目经理","group":"业务","count":2,"bySystem":{"数据平台":2},"sysCount":1},{"name":"外部合作方","group":"其他","count":2,"bySystem":{"数据平台":2},"sysCount":1}],"groupOrder":["管理层","运营","产品","技术","病案","个案","业务","其他"],"stats":{"systems":9,"matrixSystems":6,"plainSystems":3,"items":605,"matrixItems":179,"plainItems":426,"roles":13,"yes":888}}</script>
+<script>
+const D = JSON.parse(document.getElementById('payload').textContent);
+const $ = s => document.querySelector(s);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sysByName = n => D.systems.find(s=>s.name===n);
+const shortSys = n => String(n).replace(/（[^）]*）/g,'');
+const groupColor = g => ({'管理层':'#7c3aed','运营':'#2f5bd7','产品':'#0891b2','技术':'#0b8a5b','病案':'#d97706','个案':'#db2777','业务':'#4f46e5','其他':'#64748b'}[g]||'#64748b');
+let state = {view:'overview', key:null, q:'', showNo:false, full:false, layout:'tree'};
+function layoutSwitch(){
+  const on = v => state.layout===v ? ' class="on"' : '';
+  return '<div class="viewswitch"><button data-layout="mind"'+on('mind')+'>思维导图</button><button data-layout="tree"'+on('tree')+'>功能树</button><button data-layout="card"'+on('card')+'>卡片</button><button data-layout="table"'+on('table')+'>表格</button></div>';
+}
+const LAYOUT_TIP={
+  mind:'思维导图：每个系统一张独立导图，中心为该系统，点带 + 的分类节点展开权限',
+  tree:'功能树：系统 → 业务分类逐层展开，点分类行可折叠，点权限标识可复制',
+  card:'卡片视图：点击权限标识可复制，便于直接提申请',
+  table:'表格视图：一行一条，便于批量核对'
+};
+function treeTools(){
+  return state.layout==='tree' ? '<button class="btn tiny" data-expand="all">全部展开</button><button class="btn tiny" data-expand="none">全部折叠</button>' : '';
+}
+
+function yesRoles(item, sys){
+  return sys.roles.filter(r=>item.rights[r.name]==='√').map(r=>r.name);
+}
+function itemMatch(it, q){
+  if(!q) return true;
+  const hay = [it.name,it.code,it.id,it.cat,it.note,it.desc].join(' ').toLowerCase();
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every(t=>hay.includes(t));
+}
+function pill(g){return '<span class="pill grp" style="background:'+groupColor(g)+'18;color:'+groupColor(g)+'">'+esc(g)+'</span>';}
+
+function renderSidebar(){
+  let h = '<button class="sidenav'+(state.view==='overview'?' active':'')+'" data-nav="overview">▦ &nbsp;总览与阅读说明</button>';
+  h += '<div class="sidegroup">按角色查找</div>';
+  const groups = {};
+  D.roles.forEach(r=>(groups[r.group]=groups[r.group]||[]).push(r));
+  D.groupOrder.concat(Object.keys(groups).filter(g=>!D.groupOrder.includes(g))).forEach(g=>{
+    if(!groups[g]||!groups[g].length) return;
+    h += '<div class="sidegroup" style="margin-top:12px;letter-spacing:.5px">'+esc(g)+'</div>';
+    groups[g].forEach(r=>{
+      h += '<button class="sideitem'+(state.view==='role'&&state.key===r.name?' active':'')+'" data-nav="role" data-key="'+esc(r.name)+'"><span class="dot" style="background:'+groupColor(g)+'"></span><span class="nm">'+esc(r.name)+'</span><span class="badge">'+r.count+'</span></button>';
+    });
+  });
+  h += '<div class="sidegroup" style="margin-top:20px">按系统查找 · 已配置角色</div>';
+  D.systems.filter(s=>s.matrix).forEach(s=>{
+    h += '<button class="sideitem'+(state.view==='system'&&state.key===s.name?' active':'')+'" data-nav="system" data-key="'+esc(s.name)+'"><span class="dot" style="background:#2f5bd7"></span><span class="nm">'+esc(s.name)+'</span><span class="badge">'+s.items.length+'</span></button>';
+  });
+  h += '<div class="sidegroup" style="margin-top:14px">仅权限清单 · 待补充角色</div>';
+  D.systems.filter(s=>!s.matrix).forEach(s=>{
+    h += '<button class="sideitem'+(state.view==='system'&&state.key===s.name?' active':'')+'" data-nav="system" data-key="'+esc(s.name)+'"><span class="dot" style="background:#d97706"></span><span class="nm">'+esc(s.name)+'</span><span class="badge">'+s.items.length+'</span></button>';
+  });
+  $('#sidebar').innerHTML = h;
+  $('#sidebar').querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{
+    state.view=b.dataset.nav; state.key=b.dataset.key||null; state.full=false;
+    if(state.q){state.q='';$('#q').value='';$('#clearq').style.display='none';}
+    render();
+  }));
+}
+
+function statsHtml(){
+  const s=D.stats;
+  const cards=[[s.systems,'覆盖系统','6 个角色矩阵 + 3 个纯清单'],
+    [s.items,'权限条目','全表去重后的权限点'],
+    [s.roles,'角色','按角色组归类'],
+    [s.matrixItems,'可申请权限条目','位于已配置角色矩阵的系统'],
+    [s.yes,'角色－权限可申请关系','∑ 各角色 √ 数量'],
+    [s.plainItems,'待补充映射条目','暂无角色对应关系']];
+  return '<div class="stats">'+cards.map(c=>'<div class="stat"><div class="v">'+c[0]+'</div><div class="k">'+c[1]+'</div><div class="h">'+c[2]+'</div></div>').join('')+'</div>';
+}
+
+function overview(){
+  const s=D.stats;
+  let h='<div class="hero"><h2>按角色，一眼看清能申请哪些权限</h2><p>原表是「系统 × 角色」的 √ / × 大矩阵，横向很宽、跨 9 个工作表，查找某个角色能申请什么非常费力。本手册把同一个角色散落在各系统的权限重新汇总，按「角色 → 系统 → 业务分类」组织，并支持全文搜索、按系统核查与打印归档。</p><div class="meta">数据来源：'+esc(D.source)+' &nbsp;·&nbsp; 整理日期：'+esc(D.generated)+' &nbsp;·&nbsp; 共 '+s.systems+' 个系统 / '+s.items+' 条权限</div></div>';
+  h += statsHtml();
+  h += '<div class="panel"><h3>阅读说明与符号口径</h3><p class="lead">本手册只做结构重组与呈现优化，不改动原表的任何权限判定。角色详情提供 <b>思维导图</b> / 功能树 / 卡片 / 表格 四种视图，可随时切换。其中思维导图为「每个系统一张独立导图」，多个系统分开展示，互不干扰。</p><div class="legend"><span><span class="pill ok">√ 可申请</span> 该角色在原表中被标记为可申请</span><span><span class="pill no">× 不可申请</span> 原表标记为 x，默认折叠隐藏</span><span><span class="pill warn">待补充</span> 原表未提供角色对应关系</span></div><div class="notice" style="margin-top:14px;margin-bottom:0"><span>ⓘ</span><div><b>需要注意：</b>「质控平台（OCR后台）」「OCR权限后台（小二中心）」「LEGO」三个工作表只有权限清单，没有角色列，因此无法归入任何角色；LEGO 的权限项还缺少编号。这 '+s.plainItems+' 条已单独放在「按系统查找」下，需业务方补齐角色映射后才能按角色申请。此外，原表的「功能说明」列基本为空，本手册以权限名称、权限标识、编号与业务分类作为主要识别信息；原表仅有的 2 条备注已在条目中保留。</div></div></div>';
+  h += '<div class="sec-head"><h3>角色总览 <span class="count">点击卡片查看该角色的完整可申请清单</span></h3></div><div class="rolecards">';
+  D.roles.forEach(r=>{
+    const bars=Object.entries(r.bySystem).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    const mx=Math.max(1,...bars.map(x=>x[1]));
+    h+='<div class="rolecard" data-role="'+esc(r.name)+'"><div class="top"><span class="nm">'+esc(r.name)+'</span>'+pill(r.group)+'</div><div class="n">'+r.count+'<small>项可申请权限</small></div><div class="bars">'+bars.map(b=>'<div class="bar"><span class="t" title="'+esc(b[0])+'">'+esc(shortSys(b[0]))+'</span><span class="track"><span class="fill" style="width:'+Math.round(b[1]/mx*100)+'%"></span></span><span class="c">'+b[1]+'</span></div>').join('')+'</div><div class="muted" style="font-size:11px;margin-top:10px">覆盖 '+r.sysCount+' 个系统</div></div>';
+  });
+  h+='</div>';
+  h += '<div class="panel" style="margin-top:20px"><h3>系统覆盖情况</h3><table><thead><tr><th>系统 / 工作表</th><th>权限条目</th><th>角色数</th><th>状态</th></tr></thead><tbody>'+D.systems.map(s=>'<tr><td class="pname">'+esc(s.name)+'</td><td class="num">'+s.items.length+'</td><td class="num">'+(s.matrix?s.roles.length:'—')+'</td><td>'+(s.matrix?'<span class="pill ok">已配置角色矩阵</span>':'<span class="pill warn">仅权限清单，待补充</span>')+'</td></tr>').join('')+'</tbody></table></div>';
+  h+='<div class="foot">字段口径：编号 / 权限名称 / 权限标识 / 备注均直接取自原表；业务分类由原表一级～四级分类拼接，已剔除「/」「-」等占位符。搜索支持空格分隔的多关键词同时匹配。打印时建议使用顶部「完整清单」一次性展开全部角色章节。</div>';
+  return h;
+}
+
+function tableRows(items, sys, opts){
+  opts=opts||{};
+  const showNo=state.showNo;
+  return items.map(it=>{
+    const can=opts.role?it.rights[opts.role]==='√':null;
+    let extra='';
+    if(opts.role&&showNo&&!can) extra=' <span class="pill no">不可申请</span>';
+    if(it.note) extra+=' <span class="note">⚑ '+esc(it.note)+'</span>';
+    return '<tr><td class="pname">'+esc(it.name||'（未命名）')+extra+'</td><td>'+(it.code?'<span class="code">'+esc(it.code)+'</span>':'<span class="muted">—</span>')+'</td><td class="num">'+esc(it.id||'—')+'</td>'+(opts.showCat?'<td class="muted">'+esc(it.cat)+'</td>':'')+'</tr>';
+  }).join('');
+}
+
+function cardRows(items, opts){
+  opts=opts||{};
+  return '<div class="cardgrid">'+items.map(it=>{
+    const can=opts.role?it.rights[opts.role]==='√':null;
+    const denied=opts.role&&!can;
+    return '<article class="permcard'+(denied?' denied':'')+'">'
+      +'<div class="pc-top"><span class="pc-name">'+esc(it.name||'（未命名）')+'</span>'+(it.id?'<span class="pc-id">#'+esc(it.id)+'</span>':'')+'</div>'
+      +(it.code?'<button class="pc-code" data-copy="'+esc(it.code)+'" title="点击复制权限标识">'+esc(it.code)+'</button>':'<span class="pc-code empty-code">无权限标识</span>')
+      +'<div class="pc-meta">'+(denied?'<span class="pc-flag">不可申请</span>':'')+(it.note?'<span class="pc-note">⚑ '+esc(it.note)+'</span>':'')+(opts.showCat?'<span class="pc-cat" title="'+esc(it.cat)+'">'+esc(it.cat)+'</span>':'')+'</div>'
+      +'</article>';
+  }).join('')+'</div>';
+}
+
+function treeBlock(items, opts){
+  const root={children:{},items:[]};
+  items.forEach(it=>{
+    const parts=(it.cat&&it.cat!=='未分类')?it.cat.split(' › '):['未分类'];
+    let n=root;
+    parts.forEach(p=>{
+      n.children[p]=n.children[p]||{name:p,children:{},items:[]};
+      n=n.children[p];
+    });
+    n.items.push(it);
+  });
+  const size=n=>n.items.length+Object.values(n.children).reduce((a,c)=>a+size(c),0);
+  const leaf=it=>{
+    const can=opts.role?it.rights[opts.role]==='√':null;
+    const denied=opts.role&&!can;
+    return '<div class="tleaf'+(denied?' denied':'')+'">'
+      +'<span class="ldot"></span>'
+      +'<span class="ln">'+esc(it.name||'（未命名）')+(it.note?'<em class="pc-note">⚑ '+esc(it.note)+'</em>':'')+(denied?'<em class="pc-note" style="color:#8b95a7;background:#f1f3f6">不可申请</em>':'')+'</span>'
+      +(it.code?'<button class="lc" data-copy="'+esc(it.code)+'" title="点击复制权限标识">'+esc(it.code)+'</button>':'<span class="lc none">无标识</span>')
+      +'<span class="li">'+(it.id?'#'+esc(it.id):'—')+'</span>'
+      +'</div>';
+  };
+  const draw=n=>{
+    const kids=Object.values(n.children);
+    return '<div class="tnode"><div class="trow" data-toggle><span class="ttog">▾</span><span class="tname">'+esc(n.name)+'</span><span class="tcount">'+size(n)+'</span></div>'
+      +'<div class="tchildren">'+kids.map(draw).join('')+n.items.map(leaf).join('')+'</div></div>';
+  };
+  return '<div class="tree">'+Object.values(root.children).map(draw).join('')+'</div>';
+}
+
+/* ================= 思维导图视图 ================= */
+const MM_PALETTE=['#4a72d8','#8b5cf6','#f59e0b','#16a34a','#ec4899','#0ea5e9','#ef4444','#0d9488','#6366f1','#d97706'];
+const MM={VG:11,HG:44};
+const mmState={sig:'',collapsed:new Set(),mapDefaults:{},zoom:{}};
+
+function mmTextW(s,fs){
+  let w=0;
+  for(const ch of String(s==null?'':s)){
+    const c=ch.codePointAt(0);
+    if(c>=0x2e80) w+=fs*1.02;
+    else if(ch===' ') w+=fs*0.28;
+    else if(/[A-Z]/.test(ch)) w+=fs*0.64;
+    else if(/[a-z0-9]/.test(ch)) w+=fs*0.55;
+    else w+=fs*0.45;
+  }
+  return w;
+}
+function mmCatTree(items,maxDepth){
+  const root={name:'',children:new Map(),items:[]};
+  items.forEach(it=>{
+    const parts=(it.cat&&it.cat!=='未分类')?it.cat.split(' › '):['未分类'];
+    let segs=parts.slice(0,maxDepth);
+    if(parts.length>maxDepth) segs[maxDepth-1]=parts.slice(maxDepth-1).join(' › ');
+    let n=root;
+    segs.forEach(p=>{ if(!n.children.has(p)) n.children.set(p,{name:p,children:new Map(),items:[]}); n=n.children.get(p); });
+    n.items.push(it);
+  });
+  return root;
+}
+function mmConvert(node,depth,key,color){
+  const out={key,label:node.name,depth,color,children:[],leaf:false,count:0};
+  let i=0;
+  node.children.forEach(cn=>out.children.push(mmConvert(cn,depth+1,key+'/'+(i++),color)));
+  node.items.forEach((it,j)=>out.children.push({
+    key:key+'#p'+j,label:it.name||'（未命名）',depth:depth+1,color,leaf:true,
+    code:it.code||'',pid:it.id||'',note:it.note||'',denied:!!it.denied,count:1
+  }));
+  out.count=node.items.length+out.children.reduce((a,c)=>a+c.count,0);
+  return out;
+}
+/* 每个系统一张独立导图：中心节点 = 系统 */
+function mmMaps(){
+  const q=state.q.trim();
+  const maps=[];
+  if(state.view==='system'){
+    const s=sysByName(state.key);
+    if(!s) return maps;
+    const items=s.items.filter(it=>itemMatch(it,q));
+    if(!items.length) return maps;
+    maps.push({id:'m0',sys:s,items,role:null,sub:(s.matrix?s.roles.length+' 个角色':'无角色映射')});
+  }else{
+    const r=D.roles.find(x=>x.name===state.key);
+    if(!r) return maps;
+    let gi=0;
+    D.systems.filter(s=>s.matrix&&r.bySystem[s.name]!==undefined).forEach(s=>{
+      const all=s.items.filter(it=>itemMatch(it,q));
+      const list=state.showNo?all.filter(it=>it.rights[r.name]!==undefined):all.filter(it=>it.rights[r.name]==='√');
+      if(!list.length) return;
+      maps.push({id:'m'+(gi++),sys:s,role:r.name,
+        items:list.map(it=>Object.assign({},it,{denied:it.rights[r.name]!=='√'})),
+        sub:'系统内共 '+s.items.length+' 项权限'});
+    });
+  }
+  return maps;
+}
+function mmBuildRoot(map){
+  const root={key:map.id+'|r',label:map.sys.name,sub:map.sub,depth:0,children:[],leaf:false,count:0};
+  const t=mmCatTree(map.items,3);
+  [...t.children.values()].forEach((cn,i)=>root.children.push(mmConvert(cn,1,root.key+'/'+i,MM_PALETTE[i%MM_PALETTE.length])));
+  root.count=map.items.length;
+  return root;
+}
+function mmDefaults(root){
+  const set=new Set();
+  (function walk(n){
+    n.children.forEach(c=>{
+      if(c.leaf) return;
+      if(c.depth>=2) set.add(c.key);
+      walk(c);
+    });
+  })(root);
+  return set;
+}
+function mmVisibleLeaves(root,collapsed){
+  let n=0;
+  (function walk(node,hidden){
+    node.children.forEach(c=>{
+      if(c.leaf){ if(!hidden) n++; return; }
+      walk(c,hidden||collapsed.has(c.key));
+    });
+  })(root,false);
+  return n;
+}
+function mmSize(n){
+  const d=Math.min(n.depth,4);
+  n.fs = d===0?17 : d===1?13.5 : d===2?12.5 : 12;
+  if(n.leaf){ n.h=22; n.w=mmTextW(n.label,12)+18; return; }
+  const hasKids=n.children.length>0;
+  const inner=hasKids?24:8;
+  const pad=n.depth===0?24:12;
+  const countW=n.depth>0?mmTextW(String(n.count),10)+7:0;
+  n.h = d===0?64 : d===1?32 : 27;
+  n.pad=pad; n.innerInner=inner;
+  n.w = mmTextW(n.label,n.fs)+countW+pad*2+inner;
+  if(n.depth===0) n.w=Math.max(mmTextW(n.label,17),mmTextW(n.sub,11))+pad*2;
+}
+function mmMeasure(n,collapsed,dir){
+  n.dir=dir; mmSize(n);
+  n.kids=(!n.leaf&&!collapsed.has(n.key))?n.children:[];
+  if(!n.kids.length){ n.visH=n.h; n.blockH=n.h; return; }
+  n.kids.forEach(c=>mmMeasure(c,collapsed,dir));
+  n.blockH=n.kids.reduce((a,c)=>a+c.visH,0)+MM.VG*(n.kids.length-1);
+  n.visH=Math.max(n.h,n.blockH);
+}
+function mmCols(list){
+  const cols={};
+  const walk=n=>{ cols[n.depth]=Math.max(cols[n.depth]||0,n.w); n.kids.forEach(walk); };
+  list.forEach(walk);
+  return cols;
+}
+function mmPlaceNode(n,top,X){
+  n.x = n.dir>0 ? X[n.depth] : X[n.depth]-n.w;
+  if(!n.kids.length){ n.y=top+n.visH/2; return; }
+  let cur=top+(n.visH-n.blockH)/2;
+  n.kids.forEach(c=>{ mmPlaceNode(c,cur,X); cur+=c.visH+MM.VG; });
+  n.y=(n.kids[0].y+n.kids[n.kids.length-1].y)/2;
+}
+function mmPlaceSide(list,dir,rootW){
+  const cols=mmCols(list);
+  const X={};
+  X[1]=dir>0?rootW/2+MM.HG:-rootW/2-MM.HG;
+  const maxD=Math.max(1,...Object.keys(cols).map(Number));
+  for(let d=2;d<=maxD;d++){
+    X[d]=dir>0? X[d-1]+(cols[d-1]||0)+MM.HG : X[d-1]-((cols[d-1]||0)+MM.HG);
+  }
+  let total=list.reduce((a,c)=>a+c.visH,0)+MM.VG*Math.max(0,list.length-1);
+  let top=-total/2;
+  list.forEach(n=>{ mmPlaceNode(n,top,X); top+=n.visH+MM.VG; });
+}
+function mmLink(p,c){
+  const dir=c.dir||1;
+  let x1,y1,x2,y2;
+  if(dir>0){ x1=p.x+p.w; y1=p.y; x2=c.x; y2=c.y; }
+  else{ x1=p.x; y1=p.y; x2=c.x+c.w; y2=c.y; }
+  const mx=(x1+x2)/2;
+  return '<path d="M'+x1+' '+y1+' C'+mx+' '+y1+' '+mx+' '+y2+' '+x2+' '+y2+'" fill="none" stroke="'+c.color+'" stroke-width="'+(p.depth===0?2.2:1.6)+'" stroke-linecap="round" opacity=".8"/>';
+}
+function mmNodeSvg(n){
+  if(n.leaf){
+    const start=n.dir>0;
+    const textX = start? n.x+15 : n.x+n.w-15;
+    const dotX = start? n.x+4 : n.x+n.w-4;
+    const tip=(n.denied?'不可申请 · ':'')+esc(n.label)+(n.code?' · '+esc(n.code):'')+(n.pid?' · #'+esc(n.pid):'');
+    return '<g class="mmleaf"'+(n.code?' data-copy="'+esc(n.code)+'"':'')+'><title>'+tip+'</title>'
+      +'<circle cx="'+dotX+'" cy="'+n.y+'" r="2.6" fill="'+(n.denied?'#c9d0da':n.color)+'" opacity="'+(n.denied?'.9':'.5')+'"/>'
+      +'<text x="'+textX+'" y="'+n.y+'" text-anchor="'+(start?'start':'end')+'" dominant-baseline="central" font-size="12.5" fill="'+(n.denied?'#a6aebc':'#44506a')+'">'+esc(n.label)+'</text></g>';
+  }
+  if(n.depth===0){
+    return '<g class="mmroot"><title>'+esc(n.label)+' · '+esc(n.sub)+'</title>'
+      +'<rect x="'+n.x+'" y="'+(n.y-32)+'" width="'+n.w+'" height="64" rx="18" fill="#fff" stroke="#2f5bd7" stroke-width="2.4"/>'
+      +'<text x="0" y="'+(n.y-7)+'" text-anchor="middle" dominant-baseline="central" font-size="17" font-weight="700" fill="#1e3f9e">'+esc(n.label)+'</text>'
+      +'<text x="0" y="'+(n.y+17)+'" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#8b95a7">'+esc(n.sub)+'</text></g>';
+  }
+  const hasKids=n.children.length>0;
+  const collapsed=hasKids&&n.kids.length===0;
+  const pad=n.pad, inner=n.innerInner;
+  const labelX = n.dir>0 ? n.x+pad+inner : n.x+n.w-pad-inner;
+  const txtFill = n.depth<=2 ? n.color : '#334155';
+  const fill = n.depth===1 ? n.color+'10' : '#ffffff';
+  const cx = n.dir>0 ? n.x+12 : n.x+n.w-12;
+  let g='<g class="mmnode" data-mmkey="'+esc(n.key)+'"><title>'+esc(n.label)+' · '+n.count+' 项'+(hasKids?(collapsed?' · 点击展开':' · 点击收起'):'')+'</title>';
+  g+='<rect x="'+n.x+'" y="'+(n.y-n.h/2)+'" width="'+n.w+'" height="'+n.h+'" rx="'+(n.h/2)+'" fill="'+fill+'" stroke="'+n.color+'" stroke-width="1.5"/>';
+  if(hasKids){
+    g+='<circle cx="'+cx+'" cy="'+n.y+'" r="7" fill="#fff" stroke="'+n.color+'" stroke-width="1" opacity=".9"/>'
+      +'<text x="'+cx+'" y="'+n.y+'" text-anchor="middle" dominant-baseline="central" font-size="11" fill="'+n.color+'">'+(collapsed?'+':'−')+'</text>';
+  }
+  g+='<text x="'+labelX+'" y="'+n.y+'" text-anchor="'+(n.dir>0?'start':'end')+'" dominant-baseline="central" font-size="'+n.fs+'" fill="'+txtFill+'" font-weight="'+(n.depth===1?600:500)+'">'+esc(n.label)
+    +'<tspan dx="6" font-size="10" fill="'+n.color+'" opacity=".72">'+n.count+'</tspan></text></g>';
+  return g;
+}
+function mmRenderSvg(root){
+  const parts=[];
+  (function walk(n){ n.kids.forEach(c=>{ parts.push(mmLink(n,c)); walk(c); }); })(root);
+  (function walk(n){ parts.push(mmNodeSvg(n)); n.kids.forEach(walk); })(root);
+  return parts.join('');
+}
+function mmLayout(root){
+  mmSize(root); root.dir=0;
+  root.kids=mmState.collapsed.has(root.key)?[]:root.children;
+  root.kids.forEach(c=>mmMeasure(c,mmState.collapsed));
+  root.x=-root.w/2; root.y=0;
+  const split=root.children.map((n,i)=>({n,i})).sort((a,b)=>b.n.count-a.n.count);
+  const L=[],R=[]; let wl=0,wr=0;
+  split.forEach(b=>{ if(wl<=wr){L.push(b);wl+=b.n.count;} else {R.push(b);wr+=b.n.count;} });
+  L.sort((a,b)=>a.i-b.i); R.sort((a,b)=>a.i-b.i);
+  R.forEach(b=>{ b.n.dir=1; mmMeasure(b.n,mmState.collapsed,1); });
+  L.forEach(b=>{ b.n.dir=-1; mmMeasure(b.n,mmState.collapsed,-1); });
+  mmPlaceSide(R.map(b=>b.n),1,root.w);
+  mmPlaceSide(L.map(b=>b.n),-1,root.w);
+  let x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;
+  (function walk(n){
+    x1=Math.min(x1,n.x); x2=Math.max(x2,n.x+n.w);
+    y1=Math.min(y1,n.y-n.h/2); y2=Math.max(y2,n.y+n.h/2);
+    n.kids.forEach(walk);
+  })(root);
+  const PAD=46;
+  const W=Math.ceil(x2-x1+PAD*2), H=Math.ceil(y2-y1+PAD*2);
+  return {inner:mmRenderSvg(root),W,H,tx:PAD-x1,ty:PAD-y1};
+}
+function mmMapHtml(map,root,idx){
+  const L=mmLayout(root);
+  const svg='<svg width="'+L.W+'" height="'+L.H+'" data-w="'+L.W+'" data-h="'+L.H+'" data-ax="'+(L.W/2)+'" data-ay="'+(L.H/2)+'" viewBox="0 0 '+L.W+' '+L.H+'" xmlns="http://www.w3.org/2000/svg" style="font-family:-apple-system,BlinkMacSystemFont,PingFang SC,Microsoft YaHei,sans-serif">'
+    +'<g transform="translate('+L.tx+' '+L.ty+')">'+L.inner+'</g></svg>';
+  const id=map.id;
+  const head='<div class="mmsyshead">'
+    +'<span class="mmidx">'+(idx+1)+'</span>'
+    +'<span class="t">'+esc(map.sys.name)+'</span>'
+    +(map.role?'<span class="pill ok">√ '+mmMapYes(root)+' 项可申请</span>':'<span class="pill grp">'+map.items.length+' 项权限</span>')
+    +'<span class="split-note">'+esc(map.sub)+' · '+root.children.length+' 个一级分类</span>'
+    +'<span class="spacer"></span>'
+    +'<button class="btn tiny" data-mm="all" data-map="'+id+'">展开全部</button>'
+    +'<button class="btn tiny" data-mm="default" data-map="'+id+'">收起到分类</button>'
+    +'<div class="mmzoom"><button data-mm="out" data-map="'+id+'" title="缩小">−</button><button data-mm="one" data-map="'+id+'" class="lv" id="mmk-'+id+'">100%</button><button data-mm="in" data-map="'+id+'" title="放大">+</button><button data-mm="fit" data-map="'+id+'">适应</button></div>'
+    +'</div>';
+  return '<div class="mmsys" id="mmsys-'+id+'">'+head+'<div class="mmcanvas" id="mmc-'+id+'" data-map="'+id+'"><div class="mmpan">'+svg+'</div></div></div>';
+}
+function mmMapYes(root){
+  let n=0;
+  (function walk(node){ node.children.forEach(c=>{ if(c.leaf){ if(!c.denied) n++; } else walk(c); }); })(root);
+  return n;
+}
+function mindView(){
+  const maps=mmMaps();
+  if(!maps.length) return '<div class="panel"><div class="empty">没有匹配的权限项，试试更短的关键词，或勾选「同时显示不可申请项」。</div></div>';
+  const sig=[state.view,state.key,state.q.trim(),state.showNo?1:0].join('|');
+  const fresh=mmState.sig!==sig;
+  if(fresh){ mmState.sig=sig; mmState.collapsed=new Set(); mmState.zoom={}; mmState.mapDefaults={}; }
+  const built=maps.map(m=>{
+    const root=mmBuildRoot(m);
+    mmState.mapDefaults[m.id]=mmDefaults(root);
+    if(fresh) mmState.mapDefaults[m.id].forEach(k=>mmState.collapsed.add(k));
+    return {map:m,root};
+  });
+  // 每张图各自收敛叶子数量，互不影响
+  built.forEach(b=>{
+    const nodes=[];
+    (function walk(n){ n.children.forEach(c=>{ if(!c.leaf){ nodes.push(c); walk(c); } }); })(b.root);
+    let guard=0;
+    while(mmVisibleLeaves(b.root,mmState.collapsed)>60 && guard++<40){
+      let best=null;
+      nodes.forEach(c=>{ if(!mmState.collapsed.has(c.key)&&(!best||c.count>best.count)) best=c; });
+      if(!best) break;
+      mmState.collapsed.add(best.key);
+    }
+  });
+  let h='';
+  if(built.length>1){
+    h+='<div class="mmtoc"><span class="mmtoc-lb">共 '+built.length+' 个系统，各一张导图</span>'
+      +built.map((b,i)=>'<button class="mmchip" data-jump="'+b.map.id+'"><b>'+(i+1)+'</b>'+esc(shortSys(b.map.sys.name))+'<span>'+b.root.count+'</span></button>').join('')+'</div>';
+  }
+  h+=built.map((b,i)=>mmMapHtml(b.map,b.root,i)).join('');
+  h+='<div class="foot">每张导图的中心节点为'+(state.view==='system'?'该系统':'该角色在此系统中的权限范围')+'，一级分支为业务分类'
+    +(state.view==='system'?'':'（系统已拆分为独立导图，不再共用中心节点）')
+    +'，节点后的数字为该分支下的权限条数。带 <b>+</b> 的节点可点开查看权限明细，点击权限名称可复制权限标识。'
+    +(state.showNo?'当前包含不可申请项，灰色叶子为不可申请权限。':'')
+    +'</div>';
+  return h;
+}
+function mmApplyZoom(id){
+  const list = id ? [document.getElementById('mmc-'+id)] : Array.prototype.slice.call(document.querySelectorAll('#content .mmcanvas'));
+  list.forEach(canvas=>{
+    if(!canvas) return;
+    const mid=canvas.getAttribute('data-map');
+    const svg=canvas.querySelector('svg'); if(!svg) return;
+    const W=+svg.dataset.w, H=+svg.dataset.h;
+    const z=mmState.zoom[mid]||(mmState.zoom[mid]={k:1,kSet:false,centered:false});
+    if(!z.kSet){
+      const fit=(canvas.clientWidth-64)/W;
+      z.k=Math.min(1.3,Math.max(0.3,fit));
+      z.kSet=true;
+    }
+    const k=z.k;
+    canvas.style.height=Math.round(Math.max(240,Math.min(620,H*k+16)))+'px';
+    const svg2=canvas.querySelector('svg');
+    svg2.style.width=W+'px'; svg2.style.height=H+'px';
+    svg2.style.transform='scale('+k+')';
+    const pan=canvas.querySelector('.mmpan');
+    pan.style.width=(W*k)+'px'; pan.style.height=(H*k)+'px';
+    const cw=canvas.clientWidth, ch=canvas.clientHeight;
+    const ax=(+svg.dataset.ax||W/2)*k, ay=(+svg.dataset.ay||H/2)*k;
+    const mx=Math.max(0,Math.min(cw/2-ax, cw-W*k-8));
+    const my=Math.max(0,Math.min(ch/2-ay, ch-H*k-8));
+    pan.style.marginLeft=Math.round(mx)+'px';
+    pan.style.marginTop=Math.round(my)+'px';
+    const lv=document.getElementById('mmk-'+mid); if(lv) lv.textContent=Math.round(k*100)+'%';
+    if(!z.centered){
+      canvas.scrollLeft=Math.max(0,ax+mx-cw/2);
+      canvas.scrollTop=Math.max(0,ay+my-ch/2);
+      z.centered=true;
+    }
+  });
+}
+
+function groupBlocks(items, sys, opts){
+  opts=opts||{};
+  if(state.layout==='tree') return treeBlock(items, opts);
+  const g={};
+  items.forEach(it=>(g[it.cat]=g[it.cat]||[]).push(it));
+  const keys=Object.keys(g);
+  const card=state.layout==='card';
+  return keys.map(k=>{
+    const inner = card
+      ? cardRows(g[k],opts)
+      : '<div><table class="permtable"><colgroup><col style="width:'+(opts.showCat?'24%':'30%')+'"><col><col style="width:92px">'+(opts.showCat?'<col style="width:26%">':'')+'</colgroup><thead><tr><th>权限名称</th><th>权限标识</th><th>编号</th>'+(opts.showCat?'<th>业务分类</th>':'')+'</tr></thead><tbody>'+tableRows(g[k],sys,opts)+'</tbody></table></div>';
+    return '<details class="group" open><summary><span class="gn">'+esc(k)+'</span><span class="badge">'+g[k].length+'</span></summary>'+inner+'</details>';
+  }).join('');
+}
+
+function roleView(name){
+  const r=D.roles.find(x=>x.name===name); if(!r) return '<div class="empty">未找到角色</div>';
+  let h='<div class="crumb"><b>按角色查找</b> / '+esc(r.group)+' / '+esc(name)+'</div><div class="pagehead"><h2>'+esc(name)+' <span style="font-size:14px;font-weight:500;color:var(--text-3)">'+pill(r.group)+'</span></h2><p class="sub">共 <b style="color:var(--brand-deep)">'+r.count+'</b> 项可申请权限，覆盖 '+r.sysCount+' 个系统 · 按系统与业务分类分组</p></div>';
+  h+='<div class="viewbar"><span class="tip">'+(LAYOUT_TIP[state.layout]||'')+'</span>'+treeTools()+layoutSwitch()+'</div>';
+  if(state.layout==='mind') return h+mindView();
+  const q=state.q.trim();
+  let total=0, blocks='';
+  D.systems.filter(s=>s.matrix&&r.bySystem[s.name]!==undefined).forEach(s=>{
+    const all=s.items.filter(it=>itemMatch(it,q));
+    const yes=all.filter(it=>it.rights[name]==='√');
+    const list=state.showNo?all:yes;
+    if(!list.length) return;
+    total+=list.length;
+    blocks+='<div class="sysblock"><div class="syshead"><span class="t">'+esc(s.name)+'</span><span class="pill ok">√ '+yes.length+' 项可申请</span>'+(state.showNo?'<span class="muted" style="font-size:11.5px">共 '+all.length+' 项，灰色标签为不可申请</span>':'')+'<span class="spacer"></span><span class="muted" style="font-size:11.5px">系统内共 '+s.items.length+' 项权限</span></div>'+groupBlocks(list,s,{role:name})+'</div>';
+  });
+  if(q) h+='<div class="notice">搜索「'+esc(q)+'」：在当前角色范围内命中 <b>'+total+'</b> 条'+(state.showNo?'（含不可申请项）':'（仅可申请项，勾选顶部可显示全部）')+'。</div>';
+  h+= blocks || '<div class="panel"><div class="empty">没有匹配的权限项，试试更短的关键词，或勾选「同时显示不可申请项」。</div></div>';
+  h+='<div class="foot">「可申请」= 原表该角色列标记为 √。带 <span class="pill no">不可申请</span> 标签的条目仅用于对照，不属于该角色的申请范围。</div>';
+  return h;
+}
+
+function matrixTable(s){
+  const q=state.q.trim();
+  const list=s.items.filter(it=>itemMatch(it,q));
+  const groups={}; s.roles.forEach(r=>(groups[r.group]=groups[r.group]||[]).push(r));
+  let ghead=''; Object.keys(groups).forEach(g=>{ghead+='<th class="rolecol" colspan="'+groups[g].length+'" style="text-align:center;border-left:1px solid var(--line)"><span class="grpcap">'+esc(g)+'</span></th>';});
+  let rhead=''; s.roles.forEach((r,i)=>{rhead+='<th class="rolecol" style="'+(i===0||s.roles[i-1].group!==r.group?'border-left:1px solid var(--line)':'')+'">'+esc(r.name)+'</th>';});
+  let body=list.map(it=>'<tr><td class="muted" style="max-width:230px">'+esc(it.cat)+'</td><td class="num">'+esc(it.id||'—')+'</td><td class="pname">'+esc(it.name||'（未命名）')+(it.note?' <span class="note">⚑ '+esc(it.note)+'</span>':'')+'</td><td>'+(it.code?'<span class="code">'+esc(it.code)+'</span>':'<span class="muted">—</span>')+'</td>'+s.roles.map((r,i)=>{const v=it.rights[r.name];return '<td class="rolecol" style="'+(i===0||s.roles[i-1].group!==r.group?'border-left:1px solid var(--line)':'')+'">'+(v==='√'?'<span class="yes">√</span>':'<span class="no">×</span>')+'</td>';}).join('')+'</tr>').join('');
+  return '<div class="matrix-scroll"><table class="matrix"><thead><tr><th rowspan="2">业务分类</th><th rowspan="2">编号</th><th rowspan="2">权限名称</th><th rowspan="2">权限标识</th>'+ghead+'</tr><tr>'+rhead+'</tr></thead><tbody>'+body+'</tbody></table></div>';
+}
+
+function systemView(name){
+  const s=sysByName(name); if(!s) return '<div class="empty">未找到系统</div>';
+  const q=state.q.trim();
+  let h='<div class="crumb"><b>按系统查找</b> / '+esc(name)+'</div><div class="pagehead"><h2>'+esc(name)+'</h2><p class="sub">共 '+s.items.length+' 项权限 · '+(s.matrix?'已配置 '+s.roles.length+' 个角色':'原表未提供角色映射')+'</p></div>';
+  if(!s.matrix) h+='<div class="notice"><span>ⓘ</span><div><b>该工作表没有角色列。</b>以下仅按业务分类整理权限清单，无法确定各角色的申请范围；如需按角色申请，请先补齐角色映射后再更新本手册。</div></div>';
+  const list=s.items.filter(it=>itemMatch(it,q));
+  if(state.layout==='mind'){
+    h+='<div class="viewbar"><span class="tip">'+(LAYOUT_TIP.mind||'')+'</span>'+layoutSwitch()+'</div>';
+    return h+mindView();
+  }
+  if(s.matrix){
+    h+='<div class="panel" style="padding:0;overflow:hidden"><div style="padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="margin:0">角色 × 权限矩阵（原表视图）</h3><span class="muted" style="font-size:11.5px">'+ (q?'搜索命中 '+s.items.filter(it=>itemMatch(it,q)).length+' 条':'共 '+s.items.length+' 条') +' · 可横向滚动</span></div>'+matrixTable(s)+'</div>';
+  }
+  h+='<div class="sec-head"><h3>权限清单 <span class="count">按业务分类分组 · '+list.length+' 条</span></h3>'+treeTools()+layoutSwitch()+'</div>';
+  h+= list.length? '<div class="sysblock" style="padding-bottom:2px">'+groupBlocks(list,s,{showCat:false})+'</div>' : '<div class="panel"><div class="empty">没有匹配的权限项</div></div>';
+  return h;
+}
+
+function searchView(q){
+  let h='<div class="crumb"><b>全局搜索</b> / '+esc(q)+'</div><div class="pagehead"><h2>搜索结果</h2><p class="sub">关键词：<b>'+esc(q)+'</b> · 匹配权限名称、权限标识、编号、业务分类与备注</p></div>';
+  let n=0, out='';
+  D.systems.forEach(s=>{
+    const list=s.items.filter(it=>itemMatch(it,q));
+    if(!list.length) return;
+    n+=list.length;
+    out+='<div class="sysblock"><div class="syshead"><span class="t">'+esc(s.name)+'</span><span class="badge">'+list.length+' 条</span><span class="spacer"></span>'+(s.matrix?'<span class="pill ok">已配置角色</span>':'<span class="pill warn">无角色映射</span>')+'</div>'+list.map(it=>{
+      const yr=s.matrix?yesRoles(it,s):[];
+      return '<div class="resultitem" style="padding:11px 18px"><div class="r1"><span class="pname">'+esc(it.name||'（未命名）')+'</span>'+(it.code?'<span class="code">'+esc(it.code)+'</span>':'')+(it.id?'<span class="num">#'+esc(it.id)+'</span>':'')+(it.note?'<span class="note">⚑ '+esc(it.note)+'</span>':'')+'</div><div class="r2">'+esc(it.cat)+'</div>'+(yr.length?'<div class="tagline">'+yr.map(r=>'<span class="pill ok">√ '+esc(r)+'</span>').join('')+'</div>':'<div class="tagline"><span class="pill warn">待补充角色映射</span></div>')+'</div>';
+    }).join('')+'</div>';
+  });
+  const syscount=D.systems.filter(s=>s.items.some(it=>itemMatch(it,q))).length;
+  h+='<div class="notice">共命中 <b>'+n+'</b> 条权限项，分布在 <b>'+syscount+'</b> 个系统。绿色标签为该系统内可申请此权限的角色。</div>';
+  h+= out || '<div class="panel"><div class="empty">没有匹配结果，试试更短的关键词。</div></div>';
+  return h;
+}
+
+function fullView(){
+  let h='<div class="crumb"><b>完整清单</b> / 打印归档用</div><div class="pagehead"><h2>全部角色 · 可申请权限完整清单</h2><p class="sub">按角色组顺序展开，共 '+D.roles.length+' 个角色 / '+D.stats.matrixItems+' 项可申请权限条目（∑ 角色 × 权限 = '+D.stats.yes+' 条关系）</p></div>';
+  D.roles.forEach(r=>{
+    h+='<div class="sec-head"><h3>'+esc(r.name)+' '+pill(r.group)+' <span class="count">'+r.count+' 项</span></h3></div>';
+    D.systems.filter(s=>s.matrix&&r.bySystem[s.name]!==undefined).forEach(s=>{
+      const list=s.items.filter(it=>it.rights[r.name]==='√');
+      if(!list.length) return;
+      h+='<div class="sysblock"><div class="syshead"><span class="t">'+esc(s.name)+'</span><span class="pill ok">√ '+list.length+' 项</span></div>'+groupBlocks(list,s,{})+'</div>';
+    });
+  });
+  h+='<div class="sec-head"><h3>附：暂无角色映射的权限清单 <span class="count">'+D.stats.plainItems+' 条</span></h3></div>';
+  D.systems.filter(s=>!s.matrix).forEach(s=>{h+='<div class="sysblock"><div class="syshead"><span class="t">'+esc(s.name)+'</span><span class="pill warn">待补充</span><span class="spacer"></span><span class="muted" style="font-size:11.5px">'+s.items.length+' 项</span></div>'+groupBlocks(s.items,s,{})+'</div>';});
+  return h;
+}
+
+function render(keepScroll){
+  renderSidebar();
+  $('#showNo').checked=state.showNo;
+  let h;
+  if(state.full) h=fullView();
+  else if(state.q.trim()) h=searchView(state.q.trim());
+  else if(state.view==='role') h=roleView(state.key);
+  else if(state.view==='system') h=systemView(state.key);
+  else h=overview();
+  $('#content').innerHTML=h;
+  $('#content').querySelectorAll('[data-role]').forEach(c=>c.addEventListener('click',()=>{state.view='role';state.key=c.dataset.role;state.full=false;render();window.scrollTo({top:0,behavior:'smooth'});}));
+  document.querySelector('.toggle-wrap').style.display = (state.view==='role'&&!state.full&&!state.q.trim())?'flex':'none';
+  if(state.layout==='mind') mmApplyZoom();
+  if(!keepScroll) window.scrollTo({top:0});
+}
+
+function showToast(msg){
+  const el=document.getElementById('toast'); if(!el) return;
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(showToast._t); showToast._t=setTimeout(()=>el.classList.remove('show'),1700);
+}
+function copyText(t){
+  const done=()=>showToast('已复制权限标识：'+t);
+  const fallback=()=>{
+    const ta=document.createElement('textarea'); ta.value=t;
+    ta.style.cssText='position:fixed;top:-9999px;left:0;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); done(); }catch(err){ showToast('复制未成功，请手动选择文本'); }
+    document.body.removeChild(ta);
+  };
+  if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(t).then(done).catch(fallback); }
+  else fallback();
+}
+document.getElementById('content').addEventListener('click',e=>{
+  if(mmDragMoved){ mmDragMoved=false; return; }
+  const lb=e.target.closest('[data-layout]');
+  if(lb){ const v=lb.getAttribute('data-layout'); if(v!==state.layout){ state.layout=v; render(true); } return; }
+  const mb=e.target.closest('[data-mm]');
+  if(mb){
+    const act=mb.getAttribute('data-mm');
+    const mid=mb.getAttribute('data-map');
+    const dropMap=()=>{ [...mmState.collapsed].forEach(k=>{ if(k.indexOf(mid+'|')===0) mmState.collapsed.delete(k); }); };
+    const restZoom=()=>{ mmState.zoom[mid]={k:1,kSet:false,centered:false}; };
+    if(act==='all'){ dropMap(); restZoom(); render(true); return; }
+    if(act==='default'){ dropMap(); (mmState.mapDefaults[mid]||[]).forEach(k=>mmState.collapsed.add(k)); restZoom(); render(true); return; }
+    const z=mmState.zoom[mid]||(mmState.zoom[mid]={k:1,kSet:false,centered:false});
+    if(act==='in'){ z.k=Math.min(2.6,z.k*1.2); mmApplyZoom(mid); return; }
+    if(act==='out'){ z.k=Math.max(0.35,z.k/1.2); mmApplyZoom(mid); return; }
+    if(act==='one'){ z.k=1; mmApplyZoom(mid); return; }
+    if(act==='fit'){
+      const c=document.getElementById('mmc-'+mid); const svg=c&&c.querySelector('svg');
+      if(svg){ z.k=Math.min(1.6,Math.max(0.3,(c.clientWidth-64)/(+svg.dataset.w))); z.centered=false; mmApplyZoom(mid); }
+      return;
+    }
+  }
+  const jm=e.target.closest('[data-jump]');
+  if(jm){
+    const t=document.getElementById('mmsys-'+jm.getAttribute('data-jump'));
+    if(t) t.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  const mn=e.target.closest('[data-mmkey]');
+  if(mn){
+    const k=mn.getAttribute('data-mmkey');
+    if(mmState.collapsed.has(k)) mmState.collapsed.delete(k); else mmState.collapsed.add(k);
+    render(true); return;
+  }
+  const ex=e.target.closest('[data-expand]');
+  if(ex){
+    const all=ex.getAttribute('data-expand')==='all';
+    document.querySelectorAll('#content .tnode').forEach(n=>n.classList.toggle('collapsed',!all));
+    return;
+  }
+  const tg=e.target.closest('[data-toggle]');
+  if(tg){ tg.parentElement.classList.toggle('collapsed'); return; }
+  const cp=e.target.closest('[data-copy]');
+  if(cp){ copyText(cp.getAttribute('data-copy')); }
+});
+
+let mmDrag=null, mmDragMoved=false;
+document.getElementById('content').addEventListener('pointerdown',e=>{
+  const c=e.target.closest('.mmcanvas'); if(!c) return;
+  mmDrag={c,x:e.clientX,y:e.clientY,l:c.scrollLeft,t:c.scrollTop,moved:0};
+  c.classList.add('dragging');
+});
+window.addEventListener('pointermove',e=>{
+  if(!mmDrag) return;
+  const dx=e.clientX-mmDrag.x, dy=e.clientY-mmDrag.y;
+  mmDrag.moved=Math.max(mmDrag.moved,Math.abs(dx)+Math.abs(dy));
+  mmDrag.c.scrollLeft=mmDrag.l-dx;
+  mmDrag.c.scrollTop=mmDrag.t-dy;
+});
+window.addEventListener('pointerup',()=>{
+  if(!mmDrag) return;
+  mmDragMoved=mmDrag.moved>5;
+  mmDrag.c.classList.remove('dragging');
+  mmDrag=null;
+});
+document.getElementById('content').addEventListener('wheel',e=>{
+  const c=e.target.closest('.mmcanvas'); if(!c) return;
+  e.preventDefault();
+  const mid=c.getAttribute('data-map');
+  const z=mmState.zoom[mid]||(mmState.zoom[mid]={k:1,kSet:false,centered:false});
+  const rect=c.getBoundingClientRect();
+  const px=e.clientX-rect.left, py=e.clientY-rect.top;
+  const k0=z.k;
+  const k1=Math.min(2.6,Math.max(0.35,k0*(e.deltaY>0?0.92:1.08)));
+  const r=k1/k0;
+  z.k=k1; mmApplyZoom(mid);
+  c.scrollLeft=(c.scrollLeft+px)*r-px;
+  c.scrollTop=(c.scrollTop+py)*r-py;
+},{passive:false});
+
+$('#q').addEventListener('input',e=>{state.q=e.target.value;$('#clearq').style.display=state.q?'block':'none';state.full=false;render();});
+$('#clearq').addEventListener('click',()=>{state.q='';$('#q').value='';$('#clearq').style.display='none';render();});
+$('#showNo').addEventListener('change',e=>{state.showNo=e.target.checked;render();});
+$('#printBtn').addEventListener('click',()=>window.print());
+$('#fullBtn').addEventListener('click',()=>{state.full=!state.full;if(state.full){state.q='';$('#q').value='';$('#clearq').style.display='none';}render();});
+render();
+</script>
+</body>
+</html>
